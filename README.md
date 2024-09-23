@@ -44,6 +44,7 @@ sentiment-analysis-reviews/
 ├── README.md              # Project documentation
 └── .gitignore             # Ignored files for the repository
 
+```
 
 ### Data Collection
 
