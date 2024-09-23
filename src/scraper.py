@@ -49,7 +49,7 @@ class GoogleMapsScraper:
             num_reviews = rating_parts[1].strip().split()[0].replace('.', '')
             ratings.append(int(stars))
             reviews_counts.append(int(num_reviews))
-        
+        print('OK! -> summary extracted')
         return pd.DataFrame({'stars': ratings, 'reviews': reviews_counts}), reviews_container
     
     def extract_visible_reviews(self, reviews_container, scroll_pause_time=120):
@@ -99,7 +99,7 @@ class GoogleMapsScraper:
                     review_dates.append(review_date)
                     local_guides.append(local_guide)
                     text_backups.append(review.text)
-
+                    print(rating, '-', review_text)
                 except Exception as e:
                     print(f"Error extracting review: {str(e)}")
 
@@ -142,6 +142,7 @@ if __name__ == "__main__":
     chromedriver_path = '../chromedriver'
     scraper = GoogleMapsScraper(chromedriver_path)
     
+    print(args.url)
     scraper.open_page(args.url)
     scraper.accept_cookies()
     
