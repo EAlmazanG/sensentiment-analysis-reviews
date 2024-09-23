@@ -150,7 +150,7 @@ if __name__ == "__main__":
     collected_reviews = scraper.extract_visible_reviews(reviews_container)
     
     # Save the extracted data
-    stars_summary.to_csv(f'../data/raw/resume_{args.csv_name}.csv', index=False)
+    stars_summary.to_csv(f'../data/raw/resumme_{args.csv_name}.csv', index=False)
     collected_reviews.to_csv(f'../data/raw/collected_reviews_{args.csv_name}.csv', index=False)
     
     scraper.close()
