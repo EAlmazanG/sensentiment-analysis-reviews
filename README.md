@@ -35,13 +35,10 @@ sentiment-analysis-reviews/
 │   └── model_training.ipynb # Notebook for training and testing the ML model
 │
 ├── src/                   
-│   ├── scraping/          # Scrapy scripts for data ingestion
-│   └── ml/                # ML scripts for data processing and model training
-│       ├── preprocess.py  # Script for cleaning the data with pandas
-│       └── train_model.py # Script for training the sentiment analysis model
+│   ├── scraper.py  # Script for cleaning the data with pandas
+│   └── train_model.py # Script for training the sentiment analysis model
 │
 ├── reports/               
-│   └── PowerBI/           # Exported Power BI reports and dashboards
 │
 ├── requirements.txt       # Dependencies (pandas, scikit-learn, scrapy, etc.)
 ├── README.md              # Project documentation
