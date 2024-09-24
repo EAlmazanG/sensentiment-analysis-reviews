@@ -89,3 +89,6 @@ chromedriver_path = '../../chromedriver'  # Adjust this path based on your syste
 The `scraper.py` file is modular and can be customized to fit different scraping needs. You can extend its functionality or adjust specific parameters like scroll behavior, pause times, or extraction details by modifying the appropriate sections of the code.
 
 This completes the basic steps to scrape raw review data from Google Maps using the `scraper.py` script.
+
+### Data Cleaning
+Select the raw file using data_cleaning notebook and generate the processed file. Check the search_keyworkds variable to add the common expressions required to extract the desire info.
