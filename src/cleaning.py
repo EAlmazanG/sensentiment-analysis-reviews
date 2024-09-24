@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 def extractRestaurantDetailsFromReview(sample, search_words=None, verbose=False):
+    # Takes a review text and applies regex to extract specific details 
+    # (like service, price range, food score) based on the provided search patterns.
+    
     clean_text = re.sub(r'\\ue[0-9a-f]{3}', '', sample)
     clean_text = re.sub(r'\n+', '\n', clean_text)
     clean_text = clean_text.strip()
@@ -21,11 +24,16 @@ def extractRestaurantDetailsFromReview(sample, search_words=None, verbose=False)
     return extracted_values
 
 def applyExtractDetails(df, search_words=None):
+    # Applies the extraction function to the entire DataFrame, creating new columns 
+    # for the extracted details based on the regex patterns provided.
+
     column_names = list(search_words.keys())
     df[column_names] = df['text_backup'].apply(lambda x: pd.Series(extractRestaurantDetailsFromReview(x, search_words=search_words)))
     return df
 
 def extractReviewCount(text):
+    # Extracts the number of reviews from a string (if present) and returns it as an integer.
+
     if isinstance(text, str):  # Verify if its a string
         match = re.search(r'(\d+)\s+reseñas', text)
         if match:
@@ -33,12 +41,16 @@ def extractReviewCount(text):
     return None
 
 def extractStarRating(text):
+    # Extracts the star rating (out of 5) from a review string and returns it as an integer.
+
     match = re.search(r'(\d+)\s+estrellas', text)
     if match:
         return int(match.group(1))
     return None
 
 def extractRecommendations(recommendations):
+    # Splits a list of recommended dishes in the review, handling cases with "y" (e.g., "X y Y").
+
     recommendations_list = recommendations.split(', ')
     if ' y ' in recommendations_list[-1]:
         last_dishes = recommendations_list[-1].rsplit(' y ', 1)
@@ -46,6 +58,9 @@ def extractRecommendations(recommendations):
     return recommendations_list
 
 def convertToDate(date_text):
+    # Converts relative date information (e.g., "2 weeks ago", "3 months ago") into an exact date.
+    # It handles weeks, months, and years and returns the corresponding start date.
+
     today = datetime.today()
 
     if 'semana' in date_text:
