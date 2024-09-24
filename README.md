@@ -7,11 +7,11 @@ This project aims to provide a simple, cost-effective solution for small online 
 Small eCommerce businesses often lack the resources to conduct in-depth analysis of customer reviews. Understanding customer satisfaction through reviews can be crucial for product and service improvements. This project addresses this need by delivering a solution that is both accessible and scalable, allowing small businesses to efficiently analyze customer sentiment without the need for extensive technical knowledge or expensive tools.
 
 ## Technologies
-- **Python Scrapy**: Used for scraping customer reviews from online stores.
+- **Selenium**: Used for scraping customer reviews from online stores.
 - **CSV/Google Drive**: Data storage in CSV format, either locally or in Google Drive.
 - **pandas**: Used for cleaning and processing the text data.
 - **scikit-learn**: Implements a simple machine learning model for sentiment analysis.
-- **Power BI**: Displays the results in an accessible and interactive dashboard.
+- **TBD**: Displays the results in an accessible and interactive dashboard.
 
 ## Project Phases
 1. **Data Collection (Scraping)**: Reviews will be collected from online stores using Python's Scrapy framework and stored in CSV format.
@@ -35,14 +35,57 @@ sentiment-analysis-reviews/
 │   └── model_training.ipynb # Notebook for training and testing the ML model
 │
 ├── src/                   
-│   ├── scraping/          # Scrapy scripts for data ingestion
-│   └── ml/                # ML scripts for data processing and model training
-│       ├── preprocess.py  # Script for cleaning the data with pandas
-│       └── train_model.py # Script for training the sentiment analysis model
+│   ├── scraper.py  # Script for cleaning the data with pandas
+│   └── train_model.py # Script for training the sentiment analysis model
 │
 ├── reports/               
-│   └── PowerBI/           # Exported Power BI reports and dashboards
 │
 ├── requirements.txt       # Dependencies (pandas, scikit-learn, scrapy, etc.)
 ├── README.md              # Project documentation
 └── .gitignore             # Ignored files for the repository
+
+```
+
+### Data Collection
+
+After setting up the project and understanding the folder structure, here's a step-by-step guide to using the `scraper.py` script to extract raw review data from Google Maps.
+
+#### 1. **Run `scraper.py` to Extract Raw Data**
+To start scraping data from a Google Maps page, you need to run the `scraper.py` script. The script takes two required arguments:
+- **URL**: The Google Maps URL of the place you want to scrape.
+- **CSV Name**: The name you want to give to the output CSV file.
+
+```bash
+python src/scraping/scraper.py "<Google_Maps_URL>" "<output_file_name>"
+```
+
+**Example**:
+If you want to scrape reviews from a location such as "Casa Unai", run the following command:
+
+```bash
+python src/scraping/scraper.py "https://www.google.com/maps/place/Casa+Unai/@41.6414965,-0.8941244,15z/data=!4m8!3m7!1s0xd5914da17876fd3:0x567ce7a304ac2a65!8m2!3d41.643107!4d-0.8948281!9m1!1b1!16s%2Fg%2F11bx55_vgb?entry=ttu&g_ep=EgoyMDI0MDkxOC4xIKXMDSoASAFQAw%3D%3D" "casa_unai_zaragoza"
+```
+
+This command will:
+- Scrape reviews from the provided Google Maps URL.
+- Store the raw review data in `collected_reviews_casa_unai_zaragoza.csv` located in the `data/raw/` directory.
+- Additionally, it will store the star rating summary in `resume_casa_unai_zaragoza.csv` in the same folder.
+
+#### 2. **View Output CSV Files**
+Once the script finishes execution, two CSV files will be created in the `data/raw/` folder:
+- `collected_reviews_<your_filename>.csv`: This file contains all the detailed reviews.
+- `resume_<your_filename>.csv`: This file contains a summary of star ratings and the number of reviews for each rating level.
+
+These CSV files can now be used for further analysis, processing, or visualization.
+
+#### 3. **Adjust Chromedriver Path**
+Ensure that the `chromedriver` executable is correctly referenced in the `scraper.py` script. If `chromedriver` is located elsewhere on your system, modify the following line in the `scraper.py` file to reflect the correct path:
+
+```python
+chromedriver_path = '../../chromedriver'  # Adjust this path based on your system
+```
+
+#### 4. **Customizing the Scraper**
+The `scraper.py` file is modular and can be customized to fit different scraping needs. You can extend its functionality or adjust specific parameters like scroll behavior, pause times, or extraction details by modifying the appropriate sections of the code.
+
+This completes the basic steps to scrape raw review data from Google Maps using the `scraper.py` script.
