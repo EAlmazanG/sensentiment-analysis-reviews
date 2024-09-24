@@ -30,13 +30,14 @@ sentiment-analysis-reviews/
 │   └── processed/         # Cleaned and processed data
 │
 ├── notebooks/
-│   └── scraping.ipynb       # Notebook for scrap the data
-│   └── data_cleaning.ipynb  # Notebook for initial data exploration and cleaning
-│   └── model_training.ipynb # Notebook for training and testing the ML model
+│   └── scraping.ipynb                # Notebook for scrap the data
+│   └── data_cleaning.ipynb           # Notebook for initial data exploration and cleaning
+│   └── sentiment_analysis.ipynb      # Notebook for training and testing the ML model
 │
 ├── src/                   
-│   ├── scraper.py  # Script for cleaning the data with pandas
-│   └── train_model.py # Script for training the sentiment analysis model
+│   ├── scraper.py         # Script for scrap the data with selenium
+│   ├── cleaning.py        # Script for cleaning the data with pandas
+│   └── sentiment.py       # Script for training the sentiment analysis model
 │
 ├── reports/               
 │
@@ -92,3 +93,5 @@ This completes the basic steps to scrape raw review data from Google Maps using 
 
 ### Data Cleaning
 Select the raw file using data_cleaning notebook and generate the processed file. Check the search_keyworkds variable to add the common expressions required to extract the desire info.
+
+### Data Analysis
