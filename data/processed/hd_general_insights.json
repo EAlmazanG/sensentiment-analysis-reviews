@@ -1,0 +1,17 @@
+{
+    "best": [
+        "Customers frequently praise the quality and taste of the burgers.",
+        "Many enjoy the overall ambiance and atmosphere of the dining space.",
+        "The reasonable pricing of the food is consistently noted as a positive aspect."
+    ],
+    "worst": [
+        "Several customers have experienced delays when trying to place orders.",
+        "There are reports of subpar service that detract from the dining experience.",
+        "Some diners have found certain menu items to be disappointing and not worth the price."
+    ],
+    "improve": [
+        "Streamline the ordering process to reduce waiting times for customers.",
+        "Enhance staff training to improve the quality and responsiveness of customer service.",
+        "Review the menu offerings to ensure all items meet customer expectations and value."
+    ]
+}
