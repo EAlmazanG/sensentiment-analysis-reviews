@@ -1,0 +1,42 @@
+{
+    "2023-11": {
+        "problems": [
+            "Customers reported that the caf\u00e9 environment was not inviting.",
+            "There seems to be a lack of urgency in addressing customer concerns during visits."
+        ],
+        "improve": [
+            "Enhance the ambiance of the caf\u00e9 to make it more welcoming.",
+            "Implement a training program focused on timely customer service response."
+        ]
+    },
+    "2024-02": {
+        "problems": [
+            "Service was described as poor, leading to negative customer experiences.",
+            "Customers felt that their orders were not managed properly."
+        ],
+        "improve": [
+            "Conduct regular service quality assessments to identify areas needing improvement.",
+            "Increase staff training on order management and customer interaction."
+        ]
+    },
+    "2024-03": {
+        "problems": [
+            "High noise levels were reported, making the atmosphere uncomfortable.",
+            "Customers expressed dissatisfaction with the consistency of their experiences."
+        ],
+        "improve": [
+            "Consider soundproofing measures or altering the layout to reduce noise.",
+            "Standardize service procedures to ensure a consistent experience for all customers."
+        ]
+    },
+    "2024-08": {
+        "problems": [
+            "Seating arrangements were found to be uncomfortable by patrons.",
+            "There were mixed feelings about the overall dining experience."
+        ],
+        "improve": [
+            "Reevaluate the dining layout and invest in comfortable seating options.",
+            "Solicit regular feedback from customers to continuously improve the dining experience."
+        ]
+    }
+}
