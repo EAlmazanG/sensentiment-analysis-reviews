@@ -37,7 +37,10 @@ sentiment-analysis-reviews/
 ├── src/                   
 │   ├── scraper.py         # Script for scrap the data with selenium
 │   ├── cleaning.py        # Script for cleaning the data with pandas
-│   └── sentiment.py       # Script for training the sentiment analysis model
+│   ├── ml_processing.py        # Script with functions to do the sentiment analysis and word processing 
+│   ├── ai_insights.py        # Script with functions to extract the insights using GPT
+│   ├── plots.py        # Script with plot functions for sentiment analysis
+│   └── sentiment.py       # Script for sentiment analysis and extraction of insights 
 │
 ├── reports/               
 │
@@ -47,6 +50,7 @@ sentiment-analysis-reviews/
 
 ```
 
+## Phases of the project
 ### Data Collection
 
 After setting up the project and understanding the folder structure, here's a step-by-step guide to using the `scraper.py` script to extract raw review data from Google Maps.
@@ -61,16 +65,16 @@ python src/scraping/scraper.py "<Google_Maps_URL>" "<output_file_name>"
 ```
 
 **Example**:
-If you want to scrape reviews from a location such as "Casa Unai", run the following command:
+If you want to scrape reviews from a location such as "HD", run the following command:
 
 ```bash
-python src/scraping/scraper.py "https://www.google.com/maps/place/Casa+Unai/@41.6414965,-0.8941244,15z/data=!4m8!3m7!1s0xd5914da17876fd3:0x567ce7a304ac2a65!8m2!3d41.643107!4d-0.8948281!9m1!1b1!16s%2Fg%2F11bx55_vgb?entry=ttu&g_ep=EgoyMDI0MDkxOC4xIKXMDSoASAFQAw%3D%3D" "casa_unai_zaragoza"
+python src/scraping/scraper.py "https://www.google.com/maps/place/Casa+Unai/@41.6414965,-0.8941244,15z/data=!4m8!3m7!1s0xd5914da17876fd3:0x567ce7a304ac2a65!8m2!3d41.643107!4d-0.8948281!9m1!1b1!16s%2Fg%2F11bx55_vgb?entry=ttu&g_ep=EgoyMDI0MDkxOC4xIKXMDSoASAFQAw%3D%3D" "hd"
 ```
 
 This command will:
 - Scrape reviews from the provided Google Maps URL.
-- Store the raw review data in `collected_reviews_casa_unai_zaragoza.csv` located in the `data/raw/` directory.
-- Additionally, it will store the star rating summary in `resume_casa_unai_zaragoza.csv` in the same folder.
+- Store the raw review data in `collected_hd.csv` located in the `data/raw/` directory.
+- Additionally, it will store the star rating summary in `resume_hd.csv` in the same folder.
 
 #### 2. **View Output CSV Files**
 Once the script finishes execution, two CSV files will be created in the `data/raw/` folder:
@@ -95,3 +99,17 @@ This completes the basic steps to scrape raw review data from Google Maps using 
 Select the raw file using data_cleaning notebook and generate the processed file. Check the search_keyworkds variable to add the common expressions required to extract the desire info.
 
 ### Data Analysis
+Once we have the cleaned data, we will extract the necessary information using ML, which we will use as input for the Streamlit.
+
+```bash
+python src/scraping/sentiment.py --name "<place_name>" --plot "<boolean_to_see_or_not_the_plots>"
+```
+
+The script will extract to the processed folder the insights extracted in json format, samples of some reviews in the periods of interest analysed, and the reviews with the necessary information already processed.
+
+#### Techniques Used
+- Embeddings: The notebook converts review texts into vector embeddings to capture semantic relationships between reviews, allowing for more nuanced analysis.
+- UMAP & PCA: These dimensionality reduction techniques are applied to the embeddings to simplify their structure and facilitate visualization. UMAP focuses on preserving local relationships, while PCA captures the main variance in the data. After reducing dimensions, the notebook attempts clustering to group reviews with similar patterns, although results were inconclusive.
+- Low-Score Period Analysis: The notebook specifically extracts reviews from periods with lower overall scores to analyze negative trends, helping to identify areas for improvement in customer experience.
+- Topic Extraction with LDA: Latent Dirichlet Allocation (LDA) is used to uncover the main topics in the reviews, providing a clearer picture of what customers frequently discuss, both positively and negatively.
+- Community Analysis with TF-IDF: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
