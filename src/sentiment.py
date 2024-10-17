@@ -84,6 +84,10 @@ if __name__ == "__main__":
     ## Join PCA and UMAP clusters info to reviews
     reviews = reviews.merge(pca_clusters[['review_id','pca_cluster']]).merge(umap_clusters[['review_id','umap_cluster']])
 
+    ## Save processed reviews
+    reviews.to_csv(processed_data_path + name + '_ml_processed_reviews.csv', index=False)
+    print('OK! -> processed sample reviews saved at', processed_data_path + name + '_ml_processed_reviews.csv')
+
     ## Topics
     print('=== General topics ===')
     lda_model, topics = ml_processing.analyzeTopicsLDA(reviews)
