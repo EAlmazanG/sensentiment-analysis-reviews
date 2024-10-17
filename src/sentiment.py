@@ -1,0 +1,206 @@
+import pandas as pd
+import numpy as np
+import re
+import ast
+import datetime
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+from tqdm import tqdm
+
+import ml_processing
+import plots
+import ai_insights
+
+if __name__ == "__main__":
+    ## Load the processed and cleaned data
+    processed_data_path = '../data/processed/'
+    raw_data_path = '../data/raw/'
+
+    name = 'hd'
+    plot = True
+
+    reviews_pro = pd.read_csv(processed_data_path + name + '_reviews.csv')
+    resumme_raw = pd.read_csv(raw_data_path + 'resumme_' + name + '.csv')
+
+    print(resumme_raw)
+    print(reviews_pro.sample(5))
+
+    reviews = reviews_pro.copy()
+    resumme = resumme_raw.copy()
+
+    ## Cleaning and preprocessing
+    tqdm.pandas(desc="Cleaning Reviews")
+    reviews['cleaned_review'] = reviews['review'].fillna('').progress_apply(ml_processing.clean_text)
+
+    print(reviews[['review', 'cleaned_review']].sample(5))
+
+    ## Analyze sentiment
+    # Analyze sentiment with VADER
+    reviews = ml_processing.analyzeSentiment(reviews)
+
+    # Extract common positive and negative phrases
+    common_positive_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'positive', n = 10)
+    common_negative_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'negative', n = 10)
+
+    print("Top Positive Words:", common_positive_words)
+    print("Top Negative Words:", common_negative_words)
+
+    # Extract common positive and negative bigrams
+    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n=2, top_n=10)
+    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n=2, top_n=10)
+
+    print("Top Positive Bigrams:", common_positive_bigrams)
+    print("Top Negative Bigrams:", common_negative_bigrams)
+
+    if plot:
+        plots.plotSentimentTrend(reviews, years_limit=2)
+
+    most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
+    print("Top Most Recommended:", most_recommended)
+    print("Least Recommended :", less_recommended)
+
+    ## Calculate embeddings
+    tqdm.pandas(desc="Generating Embeddings")
+    reviews['embedding'] = reviews['cleaned_review'].progress_apply(ml_processing.get_embedding)
+
+    ## Analyze embeddings
+    embeddings_pca = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot)
+    embeddings_umap = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot)
+
+    # Visualize with DBSCAN clusters
+    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = plot)
+    umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = plot)
+
+    if plot:
+        plots.plotCommunities(reviews)
+
+    ## Join PCA and UMAP clusters info to reviews
+    reviews = reviews.merge(pca_clusters[['review_id','pca_cluster']]).merge(umap_clusters[['review_id','umap_cluster']])
+
+    ## Topics
+    print('=== General topics ===')
+    lda_model, topics = ml_processing.analyzeTopicsLDA(reviews)
+
+    group_columns = ['pca_cluster', 'umap_cluster', 'sentiment_label']
+    topics_dict = ml_processing.generateTopicsbyColumn(reviews, group_columns)
+
+    # Usage
+    time_period = 'month'  # Change to 'week', 'year', etc. to analyze different periods
+    num_periods = 3  # Number of periods with the lowest average score to select
+
+    # Analyze for each score type
+    negative_periods_rating_reviews, low_score_periods = ml_processing.analyzeLowScores(reviews, 'rating_score', time_period, num_periods)
+    negative_periods_food_reviews, _ = ml_processing.analyzeLowScores(reviews, 'food_score', time_period, num_periods)
+    negative_periods_service_reviews, _ = ml_processing.analyzeLowScores(reviews, 'service_score', time_period, num_periods)
+    negative_periods_atmosphere_reviews, _ = ml_processing.analyzeLowScores(reviews, 'atmosphere_score', time_period, num_periods)
+
+    negative_periods_rating_topics = ml_processing.generateTopicsPerPeriod(negative_periods_rating_reviews, 'rating_score')
+    negative_periods_food_topics = ml_processing.generateTopicsPerPeriod(negative_periods_food_reviews, 'food_score')
+    negative_periods_service_topics = ml_processing.generateTopicsPerPeriod(negative_periods_service_reviews, 'service_score')
+    negative_periods_atmosphere_topics = ml_processing.generateTopicsPerPeriod(negative_periods_atmosphere_reviews, 'atmosphere_score')
+
+    negative_periods_topics = {**negative_periods_rating_topics, **negative_periods_food_topics, **negative_periods_service_topics, **negative_periods_atmosphere_topics}
+
+    ## Extract outliers and painpoints
+    # Join all the available information
+    words_dict = {
+        "common_positive_words": ml_processing.format_words(common_positive_words),
+        "common_negative_words": ml_processing.format_words(common_negative_words),
+        "common_positive_bigrams": ml_processing.format_words(common_positive_bigrams),
+        "common_negative_bigrams": ml_processing.format_words(common_negative_bigrams)
+    }
+    print(words_dict)
+
+    reviews_summary_dict = {**topics_dict, **words_dict}
+    print(reviews_summary_dict)
+
+    ## Extract reviews samples
+    # Calculate total score using the three main scores
+    reviews_score = reviews.copy()
+    food_score_mean = np.round(reviews_score['food_score'].mean(), 2) / 5
+    service_score_mean = np.round(reviews_score['service_score'].mean(), 2) / 5
+    atmosphere_score_mean = np.round(reviews_score['atmosphere_score'].mean(), 2) / 5
+
+    reviews_score['food_score'] = reviews_score['food_score'].fillna(food_score_mean)
+    reviews_score['service_score'] = reviews_score['service_score'].fillna(service_score_mean)
+    reviews_score['atmosphere_score'] = reviews_score['atmosphere_score'].fillna(atmosphere_score_mean)
+
+    reviews_score['total_score'] = np.round(
+        reviews_score['rating_score'] +
+        (reviews_score['food_score']/5 + reviews_score['service_score']/5 + reviews_score['atmosphere_score']/5) / 3, 2)
+
+    # Filter not null reviews
+    valid_reviews = reviews_score[reviews_score['review'].notna()]
+
+    # Select the best and worst reviews in general
+    best_reviews = valid_reviews[valid_reviews['total_score'] > 5]
+    worst_reviews = valid_reviews[valid_reviews['total_score'] < 2.5]
+
+    recent_best_reviews = best_reviews.sort_values(by='date', ascending=False).head(5)
+    print('last_positive_reviews')
+    print(recent_best_reviews.review)
+    recent_worst_reviews = worst_reviews.sort_values(by='date', ascending=False).head(5)
+    print('\nlast_negative_reviews')
+    print(recent_worst_reviews.review)
+
+    best_reviews_sample = best_reviews.sort_values(by='total_score', ascending=False).head(5)
+    print('\nbest_reviews_sample')
+    print(best_reviews_sample.review)
+    worst_reviews_sample = worst_reviews.sort_values(by='total_score', ascending=True).head(5)
+    print('\nworst_reviews_sample')
+    print(worst_reviews_sample.review)
+
+    low_score_reviews = negative_periods_rating_reviews[negative_periods_rating_reviews['review'].notna()][['month','review','rating_score']]
+    print('\nlow_score_reviews')
+    print(low_score_reviews)
+    print(low_score_periods)
+
+    ## Extract Insights with AI
+    client = ai_insights.initChatGPTClient()
+    # General insights
+    general_insights_prompt = (
+        "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms, in JSON format.\n"
+        "I want you to extract:\n"
+        "- 3 positive points\n"
+        "- 3 negative points\n"
+        "- 3 improvement suggestions based on the negative points\n"
+        "\n"
+        "Each point should be a logical, simple, and concise sentence that provides value. Do not name specific terms or topics, but focus on delivering direct value to business stakeholders without ambiguity. If you mention something that didn't go well, give examples based on the information.\n"
+        "Return the result in English in JSON format, ensuring it is easy to read in a notebook and standardized as follows:\n"
+        "\n"
+        "{best:['','',''], worst:['','',''], improve:['','','']}\n"
+        "\n"
+        "Ensure there are no contradictions between positive, negative, and improvement points.\n"
+        "The information:\n"
+    )
+    print(reviews_summary_dict)
+
+    insigths_summary_dict = ai_insights.extractInsightsWithAI(reviews_summary_dict, general_insights_prompt, client)
+    print(insigths_summary_dict)
+
+    # Worst periods insights
+    negative_periods_insights_prompt = (
+        "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms at specific moments, in JSON format.\n"
+        "\n"
+        "I want you to extract:\n"
+        "- For each date:\n"
+        "- N negative points\n"
+        "- N improvement suggestions based on the negative points\n"
+        "\n"
+        "Each point should be a logical, simple, and concise sentence that provides value. Do not mention specific terms or topics, but focus on delivering direct value to business stakeholders without ambiguity. If you mention something that didn't go well, provide examples based on the information.\n"
+        "Return the result in English in JSON format, ensuring it is easy to read in a notebook and standardized as follows:\n"
+        "\n"
+        "{date: {problems:[problem, problem...], improve:[improve,improve...]}, date:{problems:[problem, problem...], improve:[improve,improve...]}, ...}\n"
+        "\n"
+        "Make sure there are no contradictions between the points.\n"
+        "\n"
+        "The information:\n"
+    )
+    print(negative_periods_topics)
+
+    insigths_summary_dict = ai_insights.extractInsightsWithAI(negative_periods_topics, negative_periods_insights_prompt, client)
+    print(insigths_summary_dict)
