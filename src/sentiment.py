@@ -1,27 +1,30 @@
 import pandas as pd
 import numpy as np
-import re
-import ast
-import datetime
+import argparse
+import sys
+import os
+import json
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
 from tqdm import tqdm
 
 import ml_processing
 import plots
 import ai_insights
 
-if __name__ == "__main__":
-    ## Load the processed and cleaned data
-    processed_data_path = '../data/processed/'
-    raw_data_path = '../data/raw/'
+## Load the processed and cleaned data
+processed_data_path = '../data/processed/'
+raw_data_path = '../data/raw/'
+sys.path.append(os.path.abspath(os.path.join('..')))
 
-    name = 'hd'
-    plot = True
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Process sentiment analysis.')
+    parser.add_argument('--name', type=str, required=True, help='Name of the dataset to process')
+    parser.add_argument('--plot', type=bool, default=True, help='Whether to generate plots or not')
+
+    args = parser.parse_args()
+
+    name = args.name
+    plot = args.plot
 
     reviews_pro = pd.read_csv(processed_data_path + name + '_reviews.csv')
     resumme_raw = pd.read_csv(raw_data_path + 'resumme_' + name + '.csv')
@@ -50,8 +53,8 @@ if __name__ == "__main__":
     print("Top Negative Words:", common_negative_words)
 
     # Extract common positive and negative bigrams
-    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n=2, top_n=10)
-    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n=2, top_n=10)
+    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n = 2, top_n=10)
+    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n = 2, top_n=10)
 
     print("Top Positive Bigrams:", common_positive_bigrams)
     print("Top Negative Bigrams:", common_negative_bigrams)
@@ -159,6 +162,26 @@ if __name__ == "__main__":
     print(low_score_reviews)
     print(low_score_periods)
 
+    # Join all the samples
+    recent_best_reviews['sample_type'] = 'recent_best_reviews'
+    recent_worst_reviews['sample_type'] = 'recent_worst_reviews'
+    best_reviews_sample['sample_type'] = 'best_reviews_sample'
+    worst_reviews_sample['sample_type'] = 'worst_reviews_sample'
+    low_score_reviews['sample_type'] = 'low_score_reviews'
+
+    combined_reviews = pd.concat([
+        recent_best_reviews,
+        recent_worst_reviews,
+        best_reviews_sample,
+        worst_reviews_sample,
+        low_score_reviews
+    ])
+
+    # Save samples
+    combined_reviews.reset_index(drop=True, inplace=True)
+    combined_reviews.to_csv(processed_data_path + name + '_sample_selected_reviews.csv', index=False)
+    print('OK! -> processed sample reviews saved at', processed_data_path + name + '_sample_selected_reviews.csv')
+
     ## Extract Insights with AI
     client = ai_insights.initChatGPTClient()
     # General insights
@@ -182,6 +205,12 @@ if __name__ == "__main__":
     insigths_summary_dict = ai_insights.extractInsightsWithAI(reviews_summary_dict, general_insights_prompt, client)
     print(insigths_summary_dict)
 
+    ## Save insights
+    json_file_path = processed_data_path + name + '_general_insights.json'
+    with open(json_file_path, 'w') as json_file:
+        json.dump(insigths_summary_dict, json_file, indent=4)
+    print('OK! -> general insights saved at', json_file_path)
+
     # Worst periods insights
     negative_periods_insights_prompt = (
         "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms at specific moments, in JSON format.\n"
@@ -204,3 +233,9 @@ if __name__ == "__main__":
 
     insigths_summary_dict = ai_insights.extractInsightsWithAI(negative_periods_topics, negative_periods_insights_prompt, client)
     print(insigths_summary_dict)
+
+    ## Save insights
+    json_file_path = processed_data_path + name + '_worst_periods_insights.json'
+    with open(json_file_path, 'w') as json_file:
+        json.dump(insigths_summary_dict, json_file, indent=4)
+    print('OK! -> worst periods insights saved at', json_file_path)

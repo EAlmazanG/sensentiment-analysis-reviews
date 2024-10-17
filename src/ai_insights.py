@@ -11,6 +11,7 @@ import re
 from openai import OpenAI
 import openai_setup
 
+# Create GPT Client
 def initChatGPTClient():
     organization = openai_setup.conf['organization']
     project = openai_setup.conf['project']

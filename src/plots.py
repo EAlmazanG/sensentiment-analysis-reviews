@@ -61,10 +61,6 @@ def plotAverageScoresAndReviews(reviews, resumme_raw):
     # Show the figure
     fig.show()
 
-import pandas as pd
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-
 def plotScoreTrends(reviews):
     # Convert date column to datetime format and create additional time columns
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
