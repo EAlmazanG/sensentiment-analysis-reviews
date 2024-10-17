@@ -108,8 +108,8 @@ python src/scraping/sentiment.py --name "<place_name>" --plot "<boolean_to_see_o
 The script will extract to the processed folder the insights extracted in json format, samples of some reviews in the periods of interest analysed, and the reviews with the necessary information already processed.
 
 #### Techniques Used
-- Embeddings: The notebook converts review texts into vector embeddings to capture semantic relationships between reviews, allowing for more nuanced analysis.
-- UMAP & PCA: These dimensionality reduction techniques are applied to the embeddings to simplify their structure and facilitate visualization. UMAP focuses on preserving local relationships, while PCA captures the main variance in the data. After reducing dimensions, the notebook attempts clustering to group reviews with similar patterns, although results were inconclusive.
-- Low-Score Period Analysis: The notebook specifically extracts reviews from periods with lower overall scores to analyze negative trends, helping to identify areas for improvement in customer experience.
-- Topic Extraction with LDA: Latent Dirichlet Allocation (LDA) is used to uncover the main topics in the reviews, providing a clearer picture of what customers frequently discuss, both positively and negatively.
-- Community Analysis with TF-IDF: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
+- **Embeddings**: The notebook converts review texts into vector embeddings to capture semantic relationships between reviews, allowing for more nuanced analysis.
+- **UMAP & PCA**: These dimensionality reduction techniques are applied to the embeddings to simplify their structure and facilitate visualization. UMAP focuses on preserving local relationships, while PCA captures the main variance in the data. After reducing dimensions, the notebook attempts clustering to group reviews with similar patterns, although results were inconclusive.
+- **Low-Score Period Analysis**: The notebook specifically extracts reviews from periods with lower overall scores to analyze negative trends, helping to identify areas for improvement in customer experience.
+- **Topic Extraction with LDA**: Latent Dirichlet Allocation (LDA) is used to uncover the main topics in the reviews, providing a clearer picture of what customers frequently discuss, both positively and negatively.
+- **Community Analysis with TF-IDF**: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
