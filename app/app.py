@@ -26,6 +26,7 @@ st.sidebar.header("Select CSV File")
 uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
+    ## Load all necessary data
     # Load reviews data and extract place from the file name
     reviews = loadData(uploaded_file)
     file_name = uploaded_file.name
@@ -43,30 +44,30 @@ if uploaded_file is not None:
     # Load "place"_general_insights.json into a dictionary
     if os.path.exists(general_insights_file):
         general_insights = loadJson(general_insights_file)
-        st.write("General Insights:", general_insights)
+        #st.write("General Insights:", general_insights)
     else:
         st.warning(f"{place}_general_insights.json not found in {processed_path}")
 
     # Load "place"_worst_periods_insights.json into a dictionary
     if os.path.exists(worst_periods_file):
         worst_periods_insights = loadJson(worst_periods_file)
-        st.write("Worst Periods Insights:", worst_periods_insights)
+        #st.write("Worst Periods Insights:", worst_periods_insights)
     else:
         st.warning(f"{place}_worst_periods_insights.json not found in {processed_path}")
     
     # Load "place"_sample_selected_reviews.csv into a DataFrame
     if os.path.exists(sample_reviews_file):
         sample_reviews = pd.read_csv(sample_reviews_file)
-        st.write("Sample Selected Reviews:")
-        st.dataframe(sample_reviews)
+        #st.write("Sample Selected Reviews:")
+        #st.dataframe(sample_reviews)
     else:
         st.warning(f"{place}_sample_selected_reviews.csv not found in {processed_path}")
 
     # Load resumme_"place".csv from ./data/raw into a DataFrame
     if os.path.exists(resume_file):
         resume_data = pd.read_csv(resume_file)
-        st.write(f"Resume data for {place}:")
-        st.dataframe(resume_data)
+        #st.write(f"Resume data for {place}:")
+        #st.dataframe(resume_data)
     else:
         st.warning(f"resumme_{place}.csv not found in {raw_path}")
 
@@ -74,8 +75,6 @@ if uploaded_file is not None:
     if reviews is not None:
         st.write("Here are the first 10 rows of your data:")
         st.dataframe(reviews.head(10))
-    else:
-        st.write("Please upload a CSV file.")
 
 
 
@@ -84,4 +83,4 @@ if uploaded_file is not None:
 
 
 else:
-    st.write("Please upload a CSV file.")
+    st.write("Please upload a ML processed CSV file.")
