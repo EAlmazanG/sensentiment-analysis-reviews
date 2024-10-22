@@ -26,30 +26,33 @@ Small eCommerce businesses often lack the resources to conduct in-depth analysis
 sentiment-analysis-reviews/
 │
 ├── data/                  
-│   ├── raw/               # Raw data collected from Scrapy (CSV)
-│   └── processed/         # Cleaned and processed data
+│   ├── raw/                # Raw data collected from Scrapy (CSV)
+│   └── processed/          # Cleaned and processed data
 │
 ├── notebooks/
-│   └── scraping.ipynb                # Notebook for scrap the data
-│   └── data_cleaning.ipynb           # Notebook for initial data exploration and cleaning
-│   └── sentiment_analysis.ipynb      # Notebook for training and testing the ML model
+│   └── scraping.ipynb              # Notebook for scrap the data
+│   └── data_cleaning.ipynb         # Notebook for initial data exploration and cleaning
+│   └── sentiment_analysis.ipynb    # Notebook for training and testing the ML model
 │
 ├── src/                   
-│   ├── scraper.py         # Script for scrap the data with selenium
-│   ├── cleaning.py        # Script for cleaning the data with pandas
-│   ├── ml_processing.py        # Script with functions to do the sentiment analysis and word processing 
-│   ├── ai_insights.py        # Script with functions to extract the insights using GPT
-│   ├── plots.py        # Script with plot functions for sentiment analysis
-│   └── sentiment.py       # Script for sentiment analysis and extraction of insights 
+│   ├── scraper.py          # Script for scrap the data with selenium
+│   ├── cleaning.py         # Script for cleaning the data with pandas
+│   ├── ml_processing.py    # Script with functions to do the sentiment analysis and word processing 
+│   ├── ai_insights.py      # Script with functions to extract the insights using GPT
+│   ├── plots.py            # Script with plot functions for sentiment analysis
+│   └── sentiment.py        # Script for sentiment analysis and extraction of insights 
 │
-├── reports/               
+├── app/               
+│   ├── .py                 # Script with functions to extract the insights using GPT
+│   ├── .py                 # Script with plot functions for sentiment analysis
+│   └── .py                 # Script for sentiment analysis and extraction of insights 
 │
-├── requirements.txt       # Dependencies (pandas, scikit-learn, scrapy, etc.)
-├── environment.yml        # Conda environment configuration
-├── chromedriver           # chromedriver exec, download it from Chrome for Developers
-├── openai_setup.yml       # Keys for co (dont sync it in your repo!)
-├── README.md              # Project documentation
-└── .gitignore             # Ignored files for the repository
+├── requirements.txt        # Dependencies (pandas, scikit-learn, scrapy, etc.)
+├── environment.yml         # Conda environment configuration
+├── chromedriver            # chromedriver exec, download it from Chrome for Developers
+├── openai_setup.yml        # Keys for co (dont sync it in your repo!)
+├── README.md               # Project documentation
+└── .gitignore              # Ignored files for the repository
 
 ```
 
@@ -116,3 +119,6 @@ The script will extract to the processed folder the insights extracted in json f
 - **Low-Score Period Analysis**: The notebook specifically extracts reviews from periods with lower overall scores to analyze negative trends, helping to identify areas for improvement in customer experience.
 - **Topic Extraction with LDA**: Latent Dirichlet Allocation (LDA) is used to uncover the main topics in the reviews, providing a clearer picture of what customers frequently discuss, both positively and negatively.
 - **Community Analysis with TF-IDF**: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
+
+### Data Visualization
+TBD
