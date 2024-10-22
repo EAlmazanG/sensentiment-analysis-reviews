@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import ml_processing
 import plots
-import ai_insights
+import llm_insights
 
 ## Load the processed and cleaned data
 processed_data_path = '../data/processed/'
@@ -186,8 +186,8 @@ if __name__ == "__main__":
     combined_reviews.to_csv(processed_data_path + name + '_sample_selected_reviews.csv', index=False)
     print('OK! -> processed sample reviews saved at', processed_data_path + name + '_sample_selected_reviews.csv')
 
-    ## Extract Insights with AI
-    client = ai_insights.initChatGPTClient()
+    ## Extract Insights with LLM
+    client = llm_insights.initChatGPTClient()
     # General insights
     general_insights_prompt = (
         "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms, in JSON format.\n"
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     )
     print(reviews_summary_dict)
 
-    insigths_summary_dict = ai_insights.extractInsightsWithAI(reviews_summary_dict, general_insights_prompt, client)
+    insigths_summary_dict = llm_insights.extractInsightsWithLLM(reviews_summary_dict, general_insights_prompt, client)
     print(insigths_summary_dict)
 
     ## Save insights
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     )
     print(negative_periods_topics)
 
-    insigths_summary_dict = ai_insights.extractInsightsWithAI(negative_periods_topics, negative_periods_insights_prompt, client)
+    insigths_summary_dict = llm_insights.extractInsightsWithLLM(negative_periods_topics, negative_periods_insights_prompt, client)
     print(insigths_summary_dict)
 
     ## Save insights

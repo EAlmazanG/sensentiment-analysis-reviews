@@ -35,7 +35,7 @@ def extract_json_string(input_string):
     return None
 
 # Extract main insights from API
-def extractInsightsWithAI(info_dict, prompt, client):
+def extractInsightsWithLLM(info_dict, prompt, client):
     # Config and send message to gpt4o model
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
