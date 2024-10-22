@@ -45,6 +45,9 @@ sentiment-analysis-reviews/
 ├── reports/               
 │
 ├── requirements.txt       # Dependencies (pandas, scikit-learn, scrapy, etc.)
+├── environment.yml        # Conda environment configuration
+├── chromedriver           # chromedriver exec, download it from Chrome for Developers
+├── openai_setup.yml       # Keys for co (dont sync it in your repo!)
 ├── README.md              # Project documentation
 └── .gitignore             # Ignored files for the repository
 
