@@ -14,7 +14,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-def plotAverageScoresAndReviews(reviews, resumme_raw):
+def plotAverageScoresAndReviews(reviews, resumme_raw, app=False):
     # Calculate the average for each score
     average_food = reviews['food_score'].mean()
     average_service = reviews['service_score'].mean()
@@ -59,9 +59,12 @@ def plotAverageScoresAndReviews(reviews, resumme_raw):
     fig.update_layout(height=500, width=1200, plot_bgcolor="white", paper_bgcolor="white", showlegend=False)
 
     # Show the figure
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
 
-def plotScoreTrends(reviews):
+def plotScoreTrends(reviews, app = False):
     # Convert date column to datetime format and create additional time columns
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
     reviews['month'] = reviews['date'].dt.to_period('M')
@@ -148,7 +151,10 @@ def plotScoreTrends(reviews):
     fig.update_traces(marker=dict(size=8), selector=dict(name="Rating"))
     
     # Show the figure
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
 
 # Plot the evolution of distribution of reviews on time based on sentiments
 def plotSentimentTrend(df, years_limit = 2):

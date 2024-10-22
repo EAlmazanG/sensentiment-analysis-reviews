@@ -83,7 +83,8 @@ sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots
 
 st.subheader("Average Scores and Reviews Plot")
-fig = plots.plotAverageScoresAndReviews(reviews, resume)
+fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
 st.plotly_chart(fig, use_container_width=True)
-
+fig = plots.plotScoreTrends(reviews, app=True)
+st.plotly_chart(fig, use_container_width=True)
 
