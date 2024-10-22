@@ -43,7 +43,7 @@ sentiment-analysis-reviews/
 │   └── sentiment.py        # Script for sentiment analysis and extraction of insights 
 │
 ├── app/               
-│   ├── .py                 # Script with functions to extract the insights using GPT
+│   ├── app.py                 # Script with functions to extract the insights using GPT
 │   ├── .py                 # Script with plot functions for sentiment analysis
 │   └── .py                 # Script for sentiment analysis and extraction of insights 
 │
