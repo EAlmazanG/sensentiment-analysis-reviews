@@ -77,8 +77,6 @@ if uploaded_file is not None:
 else:
     st.write("Please upload a ML processed CSV file.")
 
-
-
 sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots
 
