@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join('..')))
+from src import plots
 
 # Function to load data from uploaded file
 @st.cache_data
@@ -36,7 +40,6 @@ if uploaded_file is not None:
     
     # Paths for the JSON and additional CSV files
     general_insights_file = os.path.join(processed_path, f"{place}_general_insights.json")
-    print()
     worst_periods_file = os.path.join(processed_path, f"{place}_worst_periods_insights.json")
     sample_reviews_file = os.path.join(processed_path, f"{place}_sample_selected_reviews.csv")
     resume_file = os.path.join(raw_path, f"resumme_{place}.csv")
@@ -65,22 +68,22 @@ if uploaded_file is not None:
 
     # Load resumme_"place".csv from ./data/raw into a DataFrame
     if os.path.exists(resume_file):
-        resume_data = pd.read_csv(resume_file)
+        resume = pd.read_csv(resume_file)
         #st.write(f"Resume data for {place}:")
-        #st.dataframe(resume_data)
+        #st.dataframe(resume)
     else:
         st.warning(f"resumme_{place}.csv not found in {raw_path}")
 
-
-    if reviews is not None:
-        st.write("Here are the first 10 rows of your data:")
-        st.dataframe(reviews.head(10))
-
-
-
-
-
-
-
 else:
     st.write("Please upload a ML processed CSV file.")
+
+
+
+sys.path.append(os.path.abspath(os.path.join('..')))
+from src import plots
+
+st.subheader("Average Scores and Reviews Plot")
+fig = plots.plotAverageScoresAndReviews(reviews, resume)
+st.plotly_chart(fig, use_container_width=True)
+
+
