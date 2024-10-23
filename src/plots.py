@@ -157,7 +157,7 @@ def plotScoreTrends(reviews, app = False):
         fig.show()
 
 # Plot the evolution of distribution of reviews on time based on sentiments
-def plotSentimentTrend(df, years_limit = 2):
+def plotSentimentTrend(df, years_limit = 2, app = False):
     # Convert date to datetime format and handle missing values
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
@@ -213,9 +213,12 @@ def plotSentimentTrend(df, years_limit = 2):
     fig.update_xaxes(showline=False)
     fig.update_yaxes(showline=False, range=[0, 100])  # Percentage scale from 0 to 100
 
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
 
-def plotKdistance(reduced_embeddings, k=5, method='PCA'):
+def plotKdistance(reduced_embeddings, k=5, method='PCA', app = False):
     # Compute k-nearest neighbors
     neighbors = NearestNeighbors(n_neighbors=k)
     neighbors_fit = neighbors.fit(reduced_embeddings)
@@ -247,11 +250,14 @@ def plotKdistance(reduced_embeddings, k=5, method='PCA'):
     # Add light grid lines
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
-    
-    fig.show()
+
+    if app:
+        return fig
+    else:
+        fig.show()
 
 # Plot reviews by communities, using embeddingsm cosine_similarity and Girvan-Newman algorithm
-def plotCommunities(reviews):
+def plotCommunities(reviews, app = False):
     # Load embeddings from reviews
     ebm_reviews = np.array(reviews['embedding'].tolist())
 
@@ -346,5 +352,7 @@ def plotCommunities(reviews):
                         margin=dict(b=20, l=5, r=5, t=40),
                         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
-
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()

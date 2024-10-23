@@ -6,6 +6,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots
+from src import ml_processing
 
 # Function to load data from uploaded file
 @st.cache_data
@@ -110,18 +111,33 @@ with tab1:
         recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
         st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
         st.dataframe(recent_worst_reviews.head(5))
-        
-        
-    col1, col2 = st.columns(2)
-    with col1:
-        pass
-
-
+    
 with tab2:
     pass
 
 with tab3:
-    pass
+    st.markdown("<h2 style='text-align: center; color: #00000;'>Sentiment Plots</h2>", unsafe_allow_html=True)
+    fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
+    st.plotly_chart(fig, use_container_width=True)
 
+    fig = plots.plotCommunities(reviews, app = True)
+    st.plotly_chart(fig, use_container_width=True)
 
-print(sample_reviews)
+    
+    embeddings_pca, fig = ml_processing.visualizeEmbeddingsPCA(reviews, plot = True, app = True)
+    st.plotly_chart(fig, use_container_width=True)
+
+    embeddings_umap, fig = ml_processing.visualizeEmbeddingsUMAP(reviews, plot = True, app = True)
+    st.plotly_chart(fig, use_container_width=True)
+
+    fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
+    st.plotly_chart(fig, use_container_width=True)
+
+    fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
+    st.plotly_chart(fig, use_container_width=True)
+
+    pca_clusters, fig = ml_processing.visualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
+    st.plotly_chart(fig, use_container_width=True)
+
+    umap_clusters, fig = ml_processing.visualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
+    st.plotly_chart(fig, use_container_width=True)

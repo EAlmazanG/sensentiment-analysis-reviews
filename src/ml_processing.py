@@ -266,7 +266,7 @@ def format_words(words_list):
     return {str(word): int(weight) if isinstance(weight, (int, np.integer)) else weight for word, weight in words_list}
 
 # UMAP Embeddings Visualization
-def calculateAndVisualizeEmbeddingsUMAP(df, plot = True):
+def calculateAndVisualizeEmbeddingsUMAP(df, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
     sentiment_labels = df['sentiment_label']
 
@@ -293,10 +293,13 @@ def calculateAndVisualizeEmbeddingsUMAP(df, plot = True):
         fig.update_layout(showlegend=True, legend=dict(title='Sentiment'), margin=dict(l=10, r=10, t=40, b=10))
         fig.show()
 
-    return reduced_embeddings
+    if app and plot:
+        return reduced_embeddings, fig
+    else:
+        return reduced_embeddings
 
 # PCA Embeddings Visualization
-def calculateAndVisualizeEmbeddingsPCA(df, plot = True):
+def calculateAndVisualizeEmbeddingsPCA(df, plot = True, app = False):
     # Convert embeddings to a NumPy array
     embeddings = np.array(df['embedding'].tolist())
     ratings = df['rating_score']
@@ -344,10 +347,13 @@ def calculateAndVisualizeEmbeddingsPCA(df, plot = True):
         
         fig.show()
 
-    return reduced_embeddings
+    if app and plot:
+        return reduced_embeddings, fig
+    else:
+        return reduced_embeddings
 
 # PCA Visualization with DBSCAN
-def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10, plot = True):
+def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
     ratings = df['rating_score']
     
@@ -388,10 +394,14 @@ def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10,
         )
         
         fig.show()
-    return plot_df
+
+    if app and plot:
+        return plot_df, fig
+    else:
+        return plot_df
 
 # UMAP Visualization with DBSCAN
-def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10, plot = True):
+def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
     sentiment = df['sentiment_label']
     
@@ -433,4 +443,7 @@ def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10,
         
         fig.show()
         
-    return plot_df
+    if app and plot:
+        return plot_df, fig
+    else:
+        return plot_df
