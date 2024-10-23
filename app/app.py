@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import re
 import json
 import os
 import sys
@@ -22,7 +24,13 @@ def extractPrefix(file_name):
 def loadJson(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
-    
+
+def reFormatEmbeddings(embedding_str):
+    cleaned_str = re.sub(r'[\[\]\n]', '', embedding_str)
+    embedding_list = list(map(float, cleaned_str.split()))
+    return np.array(embedding_list, dtype=np.float32)
+    return embedding_str
+
 processed_path = '../data/processed/'
 raw_path = '../data/raw/'
 
@@ -41,6 +49,11 @@ if uploaded_file is not None:
     ## Load all necessary data
     # Load reviews data and extract place from the file name
     reviews = loadData(uploaded_file)
+    print(reviews[['embedding']])
+    if 'embedding' in reviews.columns:
+        # Convert embeddings from string to list of floats
+        reviews['embedding'] = reviews['embedding'].apply(reFormatEmbeddings)
+
     file_name = uploaded_file.name
     place = extractPrefix(file_name)
     
@@ -123,21 +136,20 @@ with tab3:
     fig = plots.plotCommunities(reviews, app = True)
     st.plotly_chart(fig, use_container_width=True)
 
-    
     embeddings_pca, fig = ml_processing.visualizeEmbeddingsPCA(reviews, plot = True, app = True)
     st.plotly_chart(fig, use_container_width=True)
 
-    embeddings_umap, fig = ml_processing.visualizeEmbeddingsUMAP(reviews, plot = True, app = True)
-    st.plotly_chart(fig, use_container_width=True)
+    #embeddings_umap, fig = ml_processing.visualizeEmbeddingsUMAP(reviews, plot = True, app = True)
+    #st.plotly_chart(fig, use_container_width=True)
 
-    fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
-    st.plotly_chart(fig, use_container_width=True)
+    #fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
+    #st.plotly_chart(fig, use_container_width=True)
 
-    fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
-    st.plotly_chart(fig, use_container_width=True)
+    #fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
+    #st.plotly_chart(fig, use_container_width=True)
 
-    pca_clusters, fig = ml_processing.visualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
-    st.plotly_chart(fig, use_container_width=True)
+    #pca_clusters, fig = ml_processing.visualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
+    #st.plotly_chart(fig, use_container_width=True)
 
-    umap_clusters, fig = ml_processing.visualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
-    st.plotly_chart(fig, use_container_width=True)
+    #umap_clusters, fig = ml_processing.visualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
+    #st.plotly_chart(fig, use_container_width=True)
