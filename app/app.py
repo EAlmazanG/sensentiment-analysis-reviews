@@ -136,20 +136,26 @@ with tab3:
     fig = plots.plotCommunities(reviews, app = True)
     st.plotly_chart(fig, use_container_width=True)
 
-    embeddings_pca, fig = ml_processing.visualizeEmbeddingsPCA(reviews, plot = True, app = True)
-    st.plotly_chart(fig, use_container_width=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot = False, app = True)
+        st.plotly_chart(fig, use_container_width=True)
+    with col2:
+        embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot = False, app = True)
+        st.plotly_chart(fig, use_container_width=True)
 
-    #embeddings_umap, fig = ml_processing.visualizeEmbeddingsUMAP(reviews, plot = True, app = True)
-    #st.plotly_chart(fig, use_container_width=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
+        st.plotly_chart(fig, use_container_width=True)
+    with col2:
+        fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
+        st.plotly_chart(fig, use_container_width=True)
 
-    #fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
-    #st.plotly_chart(fig, use_container_width=True)
-
-    #fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
-    #st.plotly_chart(fig, use_container_width=True)
-
-    #pca_clusters, fig = ml_processing.visualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
-    #st.plotly_chart(fig, use_container_width=True)
-
-    #umap_clusters, fig = ml_processing.visualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = True, app = True)
-    #st.plotly_chart(fig, use_container_width=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
+        st.plotly_chart(fig, use_container_width=True)
+    with col2:
+        umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
+        st.plotly_chart(fig, use_container_width=True)
