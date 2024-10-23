@@ -80,9 +80,18 @@ else:
 sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots
 
-st.subheader("Average Scores and Reviews Plot")
-fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
-st.plotly_chart(fig, use_container_width=True)
-fig = plots.plotScoreTrends(reviews, app=True)
-st.plotly_chart(fig, use_container_width=True)
+tab1, tab2, tab3 = st.tabs(["Main", "Detail", "Advanced"])
+
+with tab1:
+    st.markdown("<h2 style='text-align: center; color: #00000;'>Average Scores and Reviews Plot</h2>", unsafe_allow_html=True)
+    fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
+    st.plotly_chart(fig, use_container_width=True)
+    fig = plots.plotScoreTrends(reviews, app=True)
+    st.plotly_chart(fig, use_container_width=True)
+with tab2:
+    pass
+
+with tab3:
+    pass
+
 
