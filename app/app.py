@@ -25,6 +25,13 @@ def loadJson(file_path):
 processed_path = '../data/processed/'
 raw_path = '../data/raw/'
 
+# Page config
+st.set_page_config(
+    page_title="Sentiment Analysis Reviews Dashboard",
+    page_icon="🍽️",
+    layout="wide",
+)
+
 # File uploader for CSV selection and all the necesary data
 st.sidebar.header("Select CSV File")
 uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
@@ -88,6 +95,25 @@ with tab1:
     st.plotly_chart(fig, use_container_width=True)
     fig = plots.plotScoreTrends(reviews, app=True)
     st.plotly_chart(fig, use_container_width=True)
+
+    st.header("Last reviews")
+    # recent_best_reviews
+    recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+    recent_best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+    st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
+    st.dataframe(recent_best_reviews.head(5))
+    # recent_worst_reviews
+    recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+    recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+    st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
+    st.dataframe(recent_worst_reviews.head(5))
+    
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        pass
+
+
 with tab2:
     pass
 
@@ -95,3 +121,4 @@ with tab3:
     pass
 
 
+print(sample_reviews)
