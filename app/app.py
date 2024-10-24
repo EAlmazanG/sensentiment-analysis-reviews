@@ -95,102 +95,135 @@ if uploaded_file is not None:
     else:
         st.warning(f"resumme_{place}.csv not found in {raw_path}")
 
+    tab1, tab2, tab3, tab4 = st.tabs(["Status", "General Insigths", "Worst Periods", "ML Lab"])
+
+    with tab1:
+        st.markdown("<h2 style='text-align: center; color: #00000;'>Average Scores and Reviews Plot</h2>", unsafe_allow_html=True)
+        fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
+        st.plotly_chart(fig, use_container_width=True)
+        fig = plots.plotScoreTrends(reviews, app=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.header("Last reviews")
+        col1, col2 = st.columns(2)
+        with col1:
+            # recent_best_reviews
+            recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+            recent_best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
+            st.dataframe(recent_best_reviews, height= 200)
+        with col2:
+            # recent_worst_reviews
+            recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+            recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
+            st.dataframe(recent_worst_reviews, height= 200)
+        
+    with tab2:
+        st.header("Customer Insights Summary")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("<h3 style='text-align: center;'>💪 Strengths!</h3>", unsafe_allow_html=True)
+            for insight in general_insights['best']:
+                st.success('👍 ' + insight)
+
+        with col2:
+            st.markdown("<h3 style='text-align: center;'>❌ Pain Points...</h3>", unsafe_allow_html=True)
+            for insight in general_insights['worst']:
+                st.error('👎 ' + insight)
+
+        _, col2, _ = st.columns([1, 3, 1])
+
+        with col2:
+            st.markdown("<h3 style='text-align: center;'>🔧 Areas for Improvement</h3>", unsafe_allow_html=True)
+            for insight in general_insights['improve']:
+                st.warning('⚠️ ' + insight)
+
+        st.header("Reviews")
+        col1, col2 = st.columns(2)
+        with col1:
+            # best_reviews
+            best_reviews = sample_reviews[sample_reviews['sample_type'] == 'best_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+            best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            # fill nulls with ''  
+            st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
+            st.dataframe(best_reviews, height=500)
+        with col2:
+            # worst_reviews
+            worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'worst_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+            worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            # fill nulls with ''  
+            st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
+            st.dataframe(worst_reviews, height=500)
+
+    with tab3:
+        st.header("Worst Periods Insights")
+        
+        st.write('Add graph')
+
+        for i, (period, insights) in enumerate(sorted(worst_periods_insights.items(), key=lambda x: x[0], reverse=True)):
+            expanded = True if i == 0 else False
+            with st.expander(f"🗓️  {period}", expanded=expanded):
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.markdown("<h5 style='text-align: center;'>❌ Problems</h5>", unsafe_allow_html=True)
+                    for problem in insights['problems']:
+                        st.error('👎 ' + problem)
+
+                with col2:
+                    st.markdown("<h5 style='text-align: center;'>🔧 Areas for Improvement</h5>", unsafe_allow_html=True)
+                    for improvement in insights['improve']:
+                        st.warning('⚠️ ' + improvement)
+
+                # Reviews for the specific period
+                period_reviews = sample_reviews[(sample_reviews['month'] == period) & (sample_reviews['sample_type'] == 'low_score_reviews')][['date', 'rating_score', 'review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+                period_reviews.rename(columns={'review': 'Review', 'rating_score': 'Rating', 'meal_type': 'Meal', 'food_score': 'Food', 'service_score': 'Service', 'atmosphere_score': 'Ambient', 'date': 'Date'}, inplace=True)
+                # fill nulls with ''  
+                if period_reviews.shape[0] > 0:
+                    st.dataframe(period_reviews, height=100)
+
+
+    with tab4:
+        st.markdown("<h3 style='text-align: left; color: #00000;'>Sentiment Plots</h3>", unsafe_allow_html=True)
+        fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig = plots.plotCommunities(reviews, app = True)
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.write('Add topics')
+
+        col1, col2 = st.columns(2)
+        with col1:
+            embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot = False, app = True)
+            st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot = False, app = True)
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.write('lorem ipsum')
+        col1, col2 = st.columns(2)
+        with col1:
+            fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
+            st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.write('lorem ipsum')
+        col1, col2 = st.columns(2)
+        with col1:
+            pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
+            st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.write('Add topics')
+
+
+
 else:
-    st.write("Please upload a ML processed CSV file.")
-
-sys.path.append(os.path.abspath(os.path.join('..')))
-from src import plots
-
-tab1, tab2, tab3 = st.tabs(["Main", "Detail", "Advanced"])
-
-with tab1:
-    st.markdown("<h2 style='text-align: center; color: #00000;'>Average Scores and Reviews Plot</h2>", unsafe_allow_html=True)
-    fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
-    st.plotly_chart(fig, use_container_width=True)
-    fig = plots.plotScoreTrends(reviews, app=True)
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.header("Last reviews")
-    col1, col2 = st.columns(2)
-    with col1:
-        # recent_best_reviews
-        recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-        recent_best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-        st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
-        st.dataframe(recent_best_reviews, height= 200)
-    with col2:
-        # recent_worst_reviews
-        recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-        recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-        st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
-        st.dataframe(recent_worst_reviews, height= 200)
-    
-with tab2:
-
-    st.header("Reviews")
-    col1, col2 = st.columns(2)
-    with col1:
-        # best_reviews
-        best_reviews = sample_reviews[sample_reviews['sample_type'] == 'best_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-        best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-        # fill nulls with ''  
-        st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
-        st.dataframe(best_reviews, height=300)
-    with col2:
-        # worst_reviews
-        worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'worst_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-        worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-        st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
-        st.dataframe(worst_reviews, height=300)
-
-    st.header("Customer Insights Summary")
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("<h3 style='text-align: center;'>💪 Strengths!</h3>", unsafe_allow_html=True)
-        for insight in general_insights['best']:
-            st.success('👍 ' + insight)
-
-    with col2:
-        st.markdown("<h3 style='text-align: center;'>❌ Pain Points...</h3>", unsafe_allow_html=True)
-        for insight in general_insights['worst']:
-            st.error('👎 ' + insight)
-
-    col1, col2, col3 = st.columns([1, 3, 1])
-
-    with col2:
-        st.markdown("<h3 style='text-align: center;'>🔧 Areas for Improvement</h3>", unsafe_allow_html=True)
-        for insight in general_insights['improve']:
-            st.warning('⚠️ ' + insight)
-
-with tab3:
-    st.markdown("<h2 style='text-align: center; color: #00000;'>Sentiment Plots</h2>", unsafe_allow_html=True)
-    fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
-    st.plotly_chart(fig, use_container_width=True)
-
-    fig = plots.plotCommunities(reviews, app = True)
-    st.plotly_chart(fig, use_container_width=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot = False, app = True)
-        st.plotly_chart(fig, use_container_width=True)
-    with col2:
-        embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot = False, app = True)
-        st.plotly_chart(fig, use_container_width=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
-        st.plotly_chart(fig, use_container_width=True)
-    with col2:
-        fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
-        st.plotly_chart(fig, use_container_width=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
-        st.plotly_chart(fig, use_container_width=True)
-    with col2:
-        umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
-        st.plotly_chart(fig, use_container_width=True)
+    st.write("Please upload a ML processed CSV file to start.")
