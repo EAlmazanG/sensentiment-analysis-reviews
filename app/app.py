@@ -95,12 +95,13 @@ if uploaded_file is not None:
     else:
         st.warning(f"resumme_{place}.csv not found in {raw_path}")
 
+
+    fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
+    st.plotly_chart(fig, use_container_width=True)
     tab1, tab2, tab3, tab4 = st.tabs(["Status", "General Insigths", "Worst Periods", "ML Lab"])
 
     with tab1:
         st.markdown("<h2 style='text-align: center; color: #00000;'>Average Scores and Reviews Plot</h2>", unsafe_allow_html=True)
-        fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
-        st.plotly_chart(fig, use_container_width=True)
         fig = plots.plotScoreTrends(reviews, app=True)
         st.plotly_chart(fig, use_container_width=True)
 
