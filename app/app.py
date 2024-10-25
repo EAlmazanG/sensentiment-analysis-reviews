@@ -5,10 +5,13 @@ import re
 import json
 import os
 import sys
+import importlib
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots
+importlib.reload(plots)
 from src import ml_processing
+importlib.reload(ml_processing)
 
 # Function to load data from uploaded file
 @st.cache_data
@@ -17,39 +20,7 @@ def loadData(uploaded_file):
         return pd.read_csv(uploaded_file)
     return None
 
-def extractPrefix(file_name):
-    # Split the filename and extract the part before "_ml"
-    return file_name.split('_ml')[0]
-
-def loadJson(file_path):
-    with open(file_path, 'r') as file:
-        return json.load(file)
-
-def reFormatEmbeddings(embedding_str):
-    cleaned_str = re.sub(r'[\[\]\n]', '', embedding_str)
-    embedding_list = list(map(float, cleaned_str.split()))
-    return np.array(embedding_list, dtype=np.float32)
-    return embedding_str
-
-processed_path = '../data/processed/'
-raw_path = '../data/raw/'
-
-# Page config
-st.set_page_config(
-    page_title="Sentiment Analysis Reviews Dashboard",
-    page_icon="🍽️",
-    layout="wide",
-)
-
-# File uploader for CSV selection and all the necesary data
-st.sidebar.header("Select CSV File")
-uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
-
-if uploaded_file is not None:
-    ## Load all necessary data
-    # Load reviews data and extract place from the file name
-    reviews = loadData(uploaded_file)
-    print(reviews[['embedding']])
+def loadAdditionalData(reviews, raw_path, processed_path):
     if 'embedding' in reviews.columns:
         # Convert embeddings from string to list of floats
         reviews['embedding'] = reviews['embedding'].apply(reFormatEmbeddings)
@@ -94,13 +65,61 @@ if uploaded_file is not None:
         #st.dataframe(resume)
     else:
         st.warning(f"resumme_{place}.csv not found in {raw_path}")
+    
+    return place, reviews, sample_reviews, resume, general_insights, worst_periods_insights 
 
+def extractPrefix(file_name):
+    # Split the filename and extract the part before "_ml"
+    return file_name.split('_ml')[0]
 
+def loadJson(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+def reFormatEmbeddings(embedding_str):
+    cleaned_str = re.sub(r'[\[\]\n]', '', embedding_str)
+    embedding_list = list(map(float, cleaned_str.split()))
+    return np.array(embedding_list, dtype=np.float32)
+    return embedding_str
+
+processed_path = '../data/processed/'
+raw_path = '../data/raw/'
+
+# Page config
+st.set_page_config(
+    page_title="Sentiment Analysis Reviews Dashboard",
+    page_icon="🍽️",
+    layout="wide",
+)
+
+# File uploader for CSV selection and all the necesary data
+st.sidebar.header("Select CSV File")
+uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
+
+if uploaded_file is not None:
+    ## Load all necessary data
+    # Load reviews data and extract place from the file name
+    reviews = loadData(uploaded_file)
+    
+    place, reviews, sample_reviews, resume, general_insights, worst_periods_insights = loadAdditionalData(reviews, raw_path, processed_path)
+
+    label_mapping = {
+        'rating_score': 'Rating',
+        'food_score': 'Food',
+        'service_score': 'Service',
+        'atmosphere_score': 'Ambient'
+    }
+
+    ## Header plots
     fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
     st.plotly_chart(fig, use_container_width=True)
     tab1, tab2, tab3, tab4 = st.tabs(["Status", "General Insigths", "Worst Periods", "ML Lab"])
 
+    ## Tabs
     with tab1:
+        import tab_1
+        importlib.reload(tab_1)
+
         st.markdown("<h2 style='text-align: center; color: #00000;'>Average Scores and Reviews Plot</h2>", unsafe_allow_html=True)
         fig = plots.plotScoreTrends(reviews, app=True)
         st.plotly_chart(fig, use_container_width=True)
@@ -159,12 +178,29 @@ if uploaded_file is not None:
             st.dataframe(worst_reviews, height=500)
 
     with tab3:
-        st.header("Worst Periods Insights")
+        import tab_3
+        importlib.reload(tab_3)
         
-        st.write('Add graph')
+        st.header("Worst Periods Insights")
+        st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
+        
+        ## Filters
+        col1, col2, col3 = st.columns([4, 2, 2])
+        with col2:
+            filter_min = st.date_input("Select Start Date", None)
+        with col3:
+            filter_max = st.date_input("Select End Date", None)
 
+        ## Trend Overview
+        st.markdown("<h4 style='text-align: left ;'>Overview</h4>", unsafe_allow_html=True)
+        fig = tab_3.plotTrend(reviews, label_mapping, app = True,  filter_min=filter_min, filter_max=filter_max)
+        st.plotly_chart(fig, use_container_width=True)
+
+        ## Problems by period
+        st.markdown("<h4 style='text-align: left ;'>Period details</h4>", unsafe_allow_html=True)
         for i, (period, insights) in enumerate(sorted(worst_periods_insights.items(), key=lambda x: x[0], reverse=True)):
             expanded = True if i == 0 else False
+        
             with st.expander(f"🗓️  {period}", expanded=expanded):
                 col1, col2 = st.columns(2)
 
