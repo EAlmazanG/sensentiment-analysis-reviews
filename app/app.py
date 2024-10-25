@@ -190,6 +190,7 @@ if uploaded_file is not None:
             filter_min = st.date_input("Select Start Date", None)
         with col3:
             filter_max = st.date_input("Select End Date", None)
+        reviews_filtered = 
 
         ## Trend Overview
         st.markdown("<h4 style='text-align: left ;'>Overview</h4>", unsafe_allow_html=True)
