@@ -89,6 +89,7 @@ def addFilters(reviews, filter_min, filter_max):
     if filter_max is not None:
         filter_max = pd.to_datetime(filter_max)
 
+    reviews['date'] = pd.to_datetime(reviews['date'])
     # Set default values for start_date and end_date
     limit_date = reviews['date'].max()
     start_date = filter_min if filter_min is not None else limit_date - pd.DateOffset(years=1)
@@ -176,20 +177,34 @@ if uploaded_file is not None:
             for insight in general_insights['improve']:
                 st.warning('⚠️ ' + insight)
 
-        st.header("Reviews")
+        st.header('')
+        ## Filters
+        col1, col2, col3 = st.columns([6, 2, 2])
+        with col1:
+            st.header("Reviews")
+        with col2:
+            filter_min_tab2 = st.date_input("Start Date", None, key="filter_min_tab2")
+        with col3:
+            filter_max_tab2 = st.date_input("End Date", None, key="filter_max_tab2")
+       
+
+        # Apply the filter function
+        sample_reviews_filtered = addFilters(sample_reviews, filter_min_tab2, filter_max_tab2)
+
+        
         col1, col2 = st.columns(2)
         with col1:
             # best_reviews
-            best_reviews = sample_reviews[sample_reviews['sample_type'] == 'best_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+            best_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'best_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-            # fill nulls with ''  
+            best_reviews.fillna('', inplace=True)
             st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
             st.dataframe(best_reviews, height=500)
         with col2:
             # worst_reviews
-            worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'worst_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
+            worst_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'worst_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-            # fill nulls with ''  
+            worst_reviews.fillna('', inplace=True) 
             st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
             st.dataframe(worst_reviews, height=500)
 
@@ -201,14 +216,14 @@ if uploaded_file is not None:
         st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
         
         ## Filters
-        col1, col2, col3 = st.columns([4, 2, 2])
+        col1, col2, col3 = st.columns([6, 2, 2])
         with col2:
-            filter_min = st.date_input("Select Start Date", None)
+            filter_min_tab3 = st.date_input("Start Date", None, key="filter_min_tab3")
         with col3:
-            filter_max = st.date_input("Select End Date", None)
+            filter_max_tab3 = st.date_input("End Date", None, key="filter_max_tab3")
 
         # Apply the filter function
-        reviews_filtered = addFilters(reviews, filter_min, filter_max)
+        reviews_filtered = addFilters(reviews, filter_min_tab3, filter_max_tab3)
         
         ## Trend Overview
         st.markdown("<h4 style='text-align: left ;'>📝 Overview</h4>", unsafe_allow_html=True)
@@ -227,8 +242,8 @@ if uploaded_file is not None:
         dates = [datetime.strptime(date, '%Y-%m') for date in dates]
         limit_date = max(dates)
 
-        start_date = pd.to_datetime(filter_min if filter_min is not None else (limit_date - pd.DateOffset(years=1)))
-        end_date = pd.to_datetime(filter_max if filter_max is not None else limit_date)
+        start_date = pd.to_datetime(filter_min_tab3 if filter_min_tab3 is not None else (limit_date - pd.DateOffset(years=1)))
+        end_date = pd.to_datetime(filter_max_tab3 if filter_max_tab3 is not None else limit_date)
         worst_periods_insights_filtered = {date: data for date, data in worst_periods_insights.items() if start_date <= datetime.strptime(date, '%Y-%m') <= end_date}
         
         for i, (period, insights) in enumerate(sorted(worst_periods_insights_filtered.items(), key=lambda x: x[0], reverse=True)):
