@@ -82,6 +82,22 @@ def reFormatEmbeddings(embedding_str):
     return np.array(embedding_list, dtype=np.float32)
     return embedding_str
 
+# Filter data for the last periods based on filter_min and filter_max
+def addFilters(reviews, filter_min, filter_max):
+    if filter_min is not None:
+        filter_min = pd.to_datetime(filter_min)
+    if filter_max is not None:
+        filter_max = pd.to_datetime(filter_max)
+
+    # Set default values for start_date and end_date
+    limit_date = reviews['date'].max()
+    start_date = filter_min if filter_min is not None else limit_date - pd.DateOffset(years=1)
+    end_date = filter_max if filter_max is not None else limit_date
+
+    # Apply filtering
+    selected_reviews = reviews[(reviews['date'] >= start_date) & (reviews['date'] <= end_date)]
+    return selected_reviews
+
 processed_path = '../data/processed/'
 raw_path = '../data/raw/'
 
@@ -190,18 +206,34 @@ if uploaded_file is not None:
             filter_min = st.date_input("Select Start Date", None)
         with col3:
             filter_max = st.date_input("Select End Date", None)
-        reviews_filtered = 
 
+        # Apply the filter function
+        reviews_filtered = addFilters(reviews, filter_min, filter_max)
+        
         ## Trend Overview
-        st.markdown("<h4 style='text-align: left ;'>Overview</h4>", unsafe_allow_html=True)
-        fig = tab_3.plotTrend(reviews, label_mapping, app = True,  filter_min=filter_min, filter_max=filter_max)
+        st.markdown("<h4 style='text-align: left ;'>📝 Overview</h4>", unsafe_allow_html=True)
+        st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
+
+        fig = tab_3.plotTrend(reviews_filtered, label_mapping, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
         ## Problems by period
-        st.markdown("<h4 style='text-align: left ;'>Period details</h4>", unsafe_allow_html=True)
-        for i, (period, insights) in enumerate(sorted(worst_periods_insights.items(), key=lambda x: x[0], reverse=True)):
-            expanded = True if i == 0 else False
+        st.markdown("<h4 style='text-align: left ;'>🔍 Period details</h4>", unsafe_allow_html=True)
+        st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
+
+        # Filter low_score_periods based on filter_min and filter_max
+        from datetime import datetime
+        dates = list(worst_periods_insights.keys())
+        dates = [datetime.strptime(date, '%Y-%m') for date in dates]
+        limit_date = max(dates)
+
+        start_date = pd.to_datetime(filter_min if filter_min is not None else (limit_date - pd.DateOffset(years=1)))
+        end_date = pd.to_datetime(filter_max if filter_max is not None else limit_date)
+        worst_periods_insights_filtered = {date: data for date, data in worst_periods_insights.items() if start_date <= datetime.strptime(date, '%Y-%m') <= end_date}
         
+        for i, (period, insights) in enumerate(sorted(worst_periods_insights_filtered.items(), key=lambda x: x[0], reverse=True)):
+            expanded = True if i == 0 else False
+
             with st.expander(f"🗓️  {period}", expanded=expanded):
                 col1, col2 = st.columns(2)
 
@@ -218,7 +250,7 @@ if uploaded_file is not None:
                 # Reviews for the specific period
                 period_reviews = sample_reviews[(sample_reviews['month'] == period) & (sample_reviews['sample_type'] == 'low_score_reviews')][['date', 'rating_score', 'review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
                 period_reviews.rename(columns={'review': 'Review', 'rating_score': 'Rating', 'meal_type': 'Meal', 'food_score': 'Food', 'service_score': 'Service', 'atmosphere_score': 'Ambient', 'date': 'Date'}, inplace=True)
-                # fill nulls with ''  
+                period_reviews.fillna('', inplace=True)
                 if period_reviews.shape[0] > 0:
                     st.dataframe(period_reviews, height=100)
 

@@ -28,23 +28,9 @@ def plotTrend(reviews, label_mapping, app=False, filter_min=None, filter_max=Non
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
     reviews['month'] = reviews['date'].dt.to_period('M')
 
-    # Filter data for the last periods based on filter_min and filter_max
-    limit_date = reviews['date'].max()
-    if filter_min is None and filter_max is None:
-        # If both filters are None, select data from the last year
-        start_date = limit_date - pd.DateOffset(years=1)
-        selected_reviews = reviews[(reviews['date'] >= start_date) & (reviews['date'] <= limit_date)]
-    else:
-        # Apply the filters if provided
-        selected_reviews = reviews
-        if filter_min is not None:
-            selected_reviews = selected_reviews[selected_reviews['date'] >= filter_min]
-        if filter_max is not None:
-            selected_reviews = selected_reviews[selected_reviews['date'] <= filter_max]
-
     # Compute averages for the required periods using label_mapping keys
     columns_to_average = list(label_mapping.keys())
-    monthly_avg_scores = selected_reviews.groupby('month')[columns_to_average].mean()
+    monthly_avg_scores = reviews.groupby('month')[columns_to_average].mean()
     
     # Create a figure to plot the trends
     fig = make_subplots(rows=1, cols=1)
