@@ -31,9 +31,8 @@ def loadAdditionalData(reviews, raw_path, processed_path):
     file_name = uploaded_file.name
     place = extractPrefix(file_name)
     
-    st.markdown("<h2 style='text-align: center; color: #00000;'> 📊 ⭐ Sentiment Analysis Reviews ⭐ 📊</h2>", unsafe_allow_html=True)
+    #st.markdown("<h3 style='text-align: center; color: #00000;'> 📊 ⭐ Sentiment Analysis Reviews ⭐ 📊</h3>", unsafe_allow_html=True)
     st.markdown(f"<h1 style='text-align: center; color: #000000;'>🍴 {place.upper()} 🍴</h1>", unsafe_allow_html=True)
-    st.markdown(f"<h4 style='text-align: center; color: #000000;'></h4>", unsafe_allow_html=True)
 
     # Paths for the JSON and additional CSV files
     general_insights_file = os.path.join(processed_path, f"{place}_general_insights.json")
@@ -138,21 +137,20 @@ if uploaded_file is not None:
 
     average_score = (resume['stars'] * resume['reviews']).sum() / resume['reviews'].sum()
 
+    # Display average score with stars
+    stars = "⭐️" * int(round(average_score))
+    st.markdown(
+        f"""
+        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 0px;">
+            <h1 style="font-size: 50px; color: #4CAF50; margin: 0;">{round(average_score, 2)} {stars}</h1>
+        </div>
+        """, unsafe_allow_html=True
+    )
+    st.markdown(f"<h4 style='text-align: center; color: #000000;'></h4>", unsafe_allow_html=True)
     # Layout columns
     col1, col2, col3 = st.columns([10, 6, 6])
 
     with col1:
-        st.markdown("<h4 style='text-align: left;'>Score</h4>", unsafe_allow_html=True)
-
-        # Display average score with stars
-        stars = "⭐️" * int(round(average_score))
-        st.markdown(
-            f"""
-            <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 0px;">
-                <h1 style="font-size: 50px; color: #4CAF50; margin: 0;">{round(average_score, 2)} {stars}</h1>
-            </div>
-            """, unsafe_allow_html=True
-        )
 
         fig_line = header.weekEvolution(reviews, label_mapping)
         st.markdown("<h4 style='text-align: left;'>Last 4 weeks</h4>", unsafe_allow_html=True)
@@ -176,7 +174,7 @@ if uploaded_file is not None:
         fig_donut.update_layout(
             showlegend=False,
             margin=dict(t=20, b=50, l=80, r=80),
-            height=350,
+            height=250,
             width=250
         )
         st.plotly_chart(fig_donut, use_container_width=True)
@@ -197,7 +195,7 @@ if uploaded_file is not None:
         fig_bar.update_yaxes(showgrid=False, showticklabels=False)
         fig_bar.update_layout(
             margin=dict(t=20, b=50, l=10, r=20),
-            height=350,
+            height=250,
             width=300,
             template="plotly_white"
         )

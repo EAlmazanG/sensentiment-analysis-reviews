@@ -32,7 +32,7 @@ def weekEvolution(reviews, label_mapping):
     fig_line.update_layout(
         margin=dict(l=10, r=10, t=10, b=10),
         paper_bgcolor="white",
-        height=200, width=800,
+        height=250, width=800,
         legend=dict(
             orientation="h",
             yanchor="bottom",
