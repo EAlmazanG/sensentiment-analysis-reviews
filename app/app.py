@@ -31,8 +31,9 @@ def loadAdditionalData(reviews, raw_path, processed_path):
     file_name = uploaded_file.name
     place = extractPrefix(file_name)
     
-    st.markdown("<h2 style='text-align: center; color: #00000;'>Sentiment Analysis Reviews</h2>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align: center; color: #00000;'>f"{place.upper()}"</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #00000;'> 📊 ⭐ Sentiment Analysis Reviews ⭐ 📊</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='text-align: center; color: #000000;'>🍴 {place.upper()} 🍴</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h4 style='text-align: center; color: #000000;'></h4>", unsafe_allow_html=True)
 
     # Paths for the JSON and additional CSV files
     general_insights_file = os.path.join(processed_path, f"{place}_general_insights.json")
