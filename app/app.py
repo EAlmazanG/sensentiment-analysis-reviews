@@ -7,6 +7,9 @@ import os
 import sys
 import importlib
 
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+
 sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots
 importlib.reload(plots)
@@ -28,8 +31,9 @@ def loadAdditionalData(reviews, raw_path, processed_path):
     file_name = uploaded_file.name
     place = extractPrefix(file_name)
     
-    st.title(f"{place.upper()}")
-    
+    st.markdown("<h2 style='text-align: center; color: #00000;'>Sentiment Analysis Reviews</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #00000;'>f"{place.upper()}"</h2>", unsafe_allow_html=True)
+
     # Paths for the JSON and additional CSV files
     general_insights_file = os.path.join(processed_path, f"{place}_general_insights.json")
     worst_periods_file = os.path.join(processed_path, f"{place}_worst_periods_insights.json")
@@ -128,8 +132,76 @@ if uploaded_file is not None:
     }
 
     ## Header plots
-    fig = plots.plotAverageScoresAndReviews(reviews, resume, app=True)
-    st.plotly_chart(fig, use_container_width=True)
+    import header
+    importlib.reload(header)
+
+    average_score = (resume['stars'] * resume['reviews']).sum() / resume['reviews'].sum()
+
+    # Layout columns
+    col1, col2, col3 = st.columns([10, 6, 6])
+
+    with col1:
+        st.markdown("<h4 style='text-align: left;'>Score</h4>", unsafe_allow_html=True)
+
+        # Display average score with stars
+        stars = "⭐️" * int(round(average_score))
+        st.markdown(
+            f"""
+            <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 0px;">
+                <h1 style="font-size: 50px; color: #4CAF50; margin: 0;">{round(average_score, 2)} {stars}</h1>
+            </div>
+            """, unsafe_allow_html=True
+        )
+
+        fig_line = header.weekEvolution(reviews, label_mapping)
+        st.markdown("<h4 style='text-align: left;'>Last 4 weeks</h4>", unsafe_allow_html=True)
+        st.plotly_chart(fig_line)
+
+    # Donut chart for reviews distribution
+    with col2:
+        st.markdown("<h4 style='text-align: center;'>Reviews Distribution</h4>", unsafe_allow_html=True)
+        color_scale = ['#4CAF50', '#8BC34A', '#FFEB3B', '#FFC107', '#F44336']  # Green to Red scale
+        resume['stars_label'] = resume['stars'].apply(lambda x: '⭐' * x)  # Convert stars to labels
+        fig_donut = go.Figure(
+            go.Pie(
+                labels=resume['stars_label'],
+                values=resume['reviews'],
+                hole=0.5,
+                marker=dict(colors=color_scale),
+                textinfo='percent+label',
+                insidetextorientation='radial'
+            )
+        )
+        fig_donut.update_layout(
+            showlegend=False,
+            margin=dict(t=20, b=50, l=80, r=80),
+            height=350,
+            width=250
+        )
+        st.plotly_chart(fig_donut, use_container_width=True)
+
+    # Bar chart for reviews count by score
+    with col3:
+        st.markdown("<h4 style='text-align: center;'> </h4>", unsafe_allow_html=True)
+        fig_bar = go.Figure(
+            go.Bar(
+                x=resume['stars_label'],
+                y=resume['reviews'],
+                marker=dict(color=color_scale),
+                text=resume['reviews'],
+                textposition='auto'
+            )
+        )
+        fig_bar.update_xaxes(showgrid=False)
+        fig_bar.update_yaxes(showgrid=False, showticklabels=False)
+        fig_bar.update_layout(
+            margin=dict(t=20, b=50, l=10, r=20),
+            height=350,
+            width=300,
+            template="plotly_white"
+        )
+        st.plotly_chart(fig_bar, use_container_width=True)
+
     tab1, tab2, tab3, tab4 = st.tabs(["Status", "General Insigths", "Worst Periods", "ML Lab"])
 
     ## Tabs
@@ -137,8 +209,11 @@ if uploaded_file is not None:
         import tab_1
         importlib.reload(tab_1)
 
-        st.markdown("<h2 style='text-align: center; color: #00000;'>Average Scores and Reviews Plot</h2>", unsafe_allow_html=True)
         fig = plots.plotScoreTrends(reviews, app=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("<h3 style='text-align: left; color: #00000;'>Sentiment Plots</h3>", unsafe_allow_html=True)
+        fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
         st.header("Last reviews")
@@ -156,6 +231,7 @@ if uploaded_file is not None:
             st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
             st.dataframe(recent_worst_reviews, height= 200)
         
+
     with tab2:
         st.header("Customer Insights Summary")
         col1, col2 = st.columns(2)
@@ -269,11 +345,7 @@ if uploaded_file is not None:
                 if period_reviews.shape[0] > 0:
                     st.dataframe(period_reviews, height=100)
 
-
     with tab4:
-        st.markdown("<h3 style='text-align: left; color: #00000;'>Sentiment Plots</h3>", unsafe_allow_html=True)
-        fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
-        st.plotly_chart(fig, use_container_width=True)
 
         fig = plots.plotCommunities(reviews, app = True)
         st.plotly_chart(fig, use_container_width=True)
@@ -307,8 +379,6 @@ if uploaded_file is not None:
             st.plotly_chart(fig, use_container_width=True)
 
         st.write('Add topics')
-
-
 
 else:
     st.write("Please upload a ML processed CSV file to start.")
