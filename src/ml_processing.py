@@ -397,6 +397,8 @@ def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10,
         template='plotly_white',
         coloraxis_colorbar=dict(title='pca_cluster'),
         hovermode='closest',
+        margin=dict(l=
+        0, r=10, t=10, b=10),
         width=700, 
         height=500
     )
@@ -446,8 +448,9 @@ def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10,
     fig.update_layout(
         showlegend=True,
         legend=dict(title='umap_cluster'),
+        hovermode='closest',
         margin=dict(l=
-        10, r=10, t=40, b=10),
+        0, r=10, t=10, b=10),
         width=700, 
         height=500
     )

@@ -410,18 +410,43 @@ if uploaded_file is not None:
                     st.dataframe(period_reviews, height = 150)
 
     with tab4:
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #00000;'>🧪 ML Lab 🧪</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+        st.write("...")
+        
+        ## Filters
+        col1, col2, col3 = st.columns([6, 2, 2])
+        with col2:
+            filter_min_ml = st.date_input("Start Date", None, key="filter_min_ml")
+        with col3:
+            filter_max_ml = st.date_input("End Date", None, key="filter_max_ml")
+
+        # Apply the filter function
+        reviews_filtered = addFilters(reviews, filter_min_ml, filter_max_ml)
 
         fig = plots.plotCommunities(reviews, app = True)
+
+        st.markdown("<h4 style='text-align: left ;'> Sentence Communities</h4>", unsafe_allow_html=True)
+        st.write("Average monthly ratings across different categories. The chart helps pinpoint drops and peaks, providing context for periods with notable fluctuations in customer satisfaction.")
         st.plotly_chart(fig, use_container_width=True)
 
         st.write('Add topics')
 
+        st.markdown("<h4 style='text-align: left ;'>🧩 Dimensional reduccion</h4>", unsafe_allow_html=True)
+        st.write("Average monthly ratings across different categories. The chart helps pinpoint drops and peaks, providing context for periods with notable fluctuations in customer satisfaction.")
+        st.write("")
+
         col1, col2 = st.columns(2)
         with col1:
             embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot = False, app = True)
+            st.markdown("<h3 style='text-align: center ;'>PCA</h3>", unsafe_allow_html=True)
+            st.write('Add topics')
             st.plotly_chart(fig, use_container_width=True)
         with col2:
             embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot = False, app = True)
+            st.markdown("<h3 style='text-align: center ;'>UMAP</h3>", unsafe_allow_html=True)
+            st.write('Add topics')
             st.plotly_chart(fig, use_container_width=True)
 
         st.write('lorem ipsum')
