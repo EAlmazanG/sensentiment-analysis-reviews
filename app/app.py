@@ -16,6 +16,13 @@ importlib.reload(plots)
 from src import ml_processing
 importlib.reload(ml_processing)
 
+import tab_1
+importlib.reload(tab_1)
+import tab_3
+importlib.reload(tab_3)
+import header
+importlib.reload(header)
+
 # Function to load data from uploaded file
 @st.cache_data
 def loadData(uploaded_file):
@@ -132,9 +139,6 @@ if uploaded_file is not None:
     }
 
     ## Header plots
-    import header
-    importlib.reload(header)
-
     average_score = (resume['stars'] * resume['reviews']).sum() / resume['reviews'].sum()
 
     # Display average score with stars
@@ -148,107 +152,163 @@ if uploaded_file is not None:
     )
     st.markdown(f"<h4 style='text-align: center; color: #000000;'></h4>", unsafe_allow_html=True)
     # Layout columns
-    col1, col2, col3 = st.columns([10, 6, 6])
+    col1, col2 = st.columns([10, 12])
 
     with col1:
-
         fig_line = header.weekEvolution(reviews, label_mapping)
-        st.markdown("<h4 style='text-align: left;'>Last 4 weeks</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: left;'>📆 Last 4 weeks</h4>", unsafe_allow_html=True)
         st.plotly_chart(fig_line)
 
     # Donut chart for reviews distribution
     with col2:
-        st.markdown("<h4 style='text-align: center;'>Reviews Distribution</h4>", unsafe_allow_html=True)
-        color_scale = ['#4CAF50', '#8BC34A', '#FFEB3B', '#FFC107', '#F44336']  # Green to Red scale
-        resume['stars_label'] = resume['stars'].apply(lambda x: '⭐' * x)  # Convert stars to labels
-        fig_donut = go.Figure(
-            go.Pie(
-                labels=resume['stars_label'],
-                values=resume['reviews'],
-                hole=0.5,
-                marker=dict(colors=color_scale),
-                textinfo='percent+label',
-                insidetextorientation='radial'
+        st.markdown("<h4 style='text-align: left;'>⭐ Distribution</h4>", unsafe_allow_html=True)
+        col21, col22 = st.columns(2)
+        with col21:
+            color_scale = ['#4CAF50', '#8BC34A', '#FFEB3B', '#FFC107', '#F44336']  # Green to Red scale
+            resume['stars_label'] = resume['stars'].apply(lambda x: '⭐' * x)  # Convert stars to labels
+            fig_donut = go.Figure(
+                go.Pie(
+                    labels=resume['stars_label'],
+                    values=resume['reviews'],
+                    hole=0.5,
+                    marker=dict(colors=color_scale),
+                    textinfo='percent+label',
+                    insidetextorientation='radial'
+                )
             )
-        )
-        fig_donut.update_layout(
-            showlegend=False,
-            margin=dict(t=20, b=50, l=80, r=80),
-            height=250,
-            width=250
-        )
-        st.plotly_chart(fig_donut, use_container_width=True)
+            fig_donut.update_layout(
+                showlegend=False,
+                margin=dict(t=20, b=50, l=80, r=80),
+                height=250,
+                width=250
+            )
+            st.plotly_chart(fig_donut, use_container_width=True)
 
-    # Bar chart for reviews count by score
-    with col3:
-        st.markdown("<h4 style='text-align: center;'> </h4>", unsafe_allow_html=True)
-        fig_bar = go.Figure(
-            go.Bar(
-                x=resume['stars_label'],
-                y=resume['reviews'],
-                marker=dict(color=color_scale),
-                text=resume['reviews'],
-                textposition='auto'
+        # Bar chart for reviews count by score
+        with col22:
+            st.markdown("<h4 style='text-align: center;'> </h4>", unsafe_allow_html=True)
+            fig_bar = go.Figure(
+                go.Bar(
+                    x=resume['stars_label'],
+                    y=resume['reviews'],
+                    marker=dict(color=color_scale),
+                    text=resume['reviews'],
+                    textposition='auto'
+                )
             )
-        )
-        fig_bar.update_xaxes(showgrid=False)
-        fig_bar.update_yaxes(showgrid=False, showticklabels=False)
-        fig_bar.update_layout(
-            margin=dict(t=20, b=50, l=10, r=20),
-            height=250,
-            width=300,
-            template="plotly_white"
-        )
-        st.plotly_chart(fig_bar, use_container_width=True)
+            fig_bar.update_xaxes(showgrid=False)
+            fig_bar.update_yaxes(showgrid=False, showticklabels=False)
+            fig_bar.update_layout(
+                margin=dict(t=10, b=10, l=10, r=20),
+                height=200,
+                width=300,
+                template="plotly_white"
+            )
+            st.plotly_chart(fig_bar, use_container_width=True)
 
     tab1, tab2, tab3, tab4 = st.tabs(["Status", "General Insigths", "Worst Periods", "ML Lab"])
 
     ## Tabs
     with tab1:
-        import tab_1
-        importlib.reload(tab_1)
+        st.markdown("<h2 style='text-align: center; color: #00000;'> 📋 Status 📋</h2>", unsafe_allow_html=True)
 
-        fig = plots.plotScoreTrends(reviews, app=True)
-        st.plotly_chart(fig, use_container_width=True)
+        # Year Overview
+        reviews['year'] = reviews['date'].dt.year
+        recent_reviews = reviews[reviews['date'] >= reviews['date'].max() - pd.DateOffset(years=8)]
+        yearly_avg_scores = recent_reviews.groupby('year')['rating_score'].mean()
 
-        st.markdown("<h3 style='text-align: left; color: #00000;'>Sentiment Plots</h3>", unsafe_allow_html=True)
-        fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
-        st.plotly_chart(fig, use_container_width=True)
+        fig = go.Figure(
+            go.Scatter(
+                x=yearly_avg_scores.index.astype(str),
+                y=yearly_avg_scores.values,
+                mode='lines+markers+text',  # Añade texto a los puntos
+                line=dict(color='#32CD32', width=4),
+                text=[f"{val:.2f}" for val in yearly_avg_scores],  # Valores como etiquetas
+                textposition="top center",  # Posición de las etiquetas
+                hoverinfo="text"
+            )
+        )
 
-        st.header("Last reviews")
+        fig.update_layout(
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=False, showticklabels=False),
+            margin=dict(t=20, b=20),
+            height=280
+        )
+        st.markdown("<h4 style='text-align: left; color: #00000;'>🗓️ Overview </h4>", unsafe_allow_html=True)
+        st.write("Annual average rating trends over recent years show overall performance. Spot upward or downward shifts and compare average ratings in Food, Service, and Ambient to identify strengths and improvement areas.")
+        col1, col2 = st.columns([6, 3])
+        with col1:
+            st.plotly_chart(fig, use_container_width=True)
+        with col2:
+        # Categories
+            columns = list(label_mapping.keys())[1:]  # Excluye 'rating_score' si no se necesita
+            average_scores = [reviews[col].mean() for col in columns]
+            colors = ['rgba(31, 119, 180, 0.8)', 'rgba(107, 174, 214, 0.8)', 'rgba(158, 202, 225, 0.8)']
+
+            fig_categories = go.Figure(
+                go.Bar(
+                    x= np.round(average_scores, 2),
+                    y=[label_mapping[col] for col in columns],  # Etiquetas usando label_mapping en orden
+                    marker=dict(color=colors),
+                    text=[f"{score:.2f}" for score in average_scores],
+                    textposition='auto',
+                    orientation='h',
+                    name="Categories"
+                )
+            )
+            fig_categories.update_layout(
+                xaxis=dict(showgrid=False, range=[0, 5], tickvals=[0, 1, 2, 3, 4, 5]),
+                yaxis=dict(showgrid=False),
+                margin=dict(t=20, b=20),
+                height=280
+            )
+            st.plotly_chart(fig_categories, use_container_width=True, key="fig_categories_tab1")
+
+        # Trend Overview
+        st.markdown("<h4 style='text-align: left ;'>📝 Monthly Overview</h4>", unsafe_allow_html=True)
+        st.write("Provides a more detailed view of average scores for each category throughout the year. It highlights fluctuations over specific months, allowing stakeholders to observe seasonal variations or significant dips and peaks that may need further investigation.")
+        recent_reviews = reviews[reviews['date'] >= reviews['date'].max() - pd.DateOffset(years=1)]
+        fig_trend = tab_3.plotTrend(recent_reviews, label_mapping, app = True)
+        st.plotly_chart(fig_trend, use_container_width=True, key="fig_month_trend_tab1")
+
+        st.markdown("<h4 style='text-align: left; color: #00000;'>🚨 Last Reviews</h4>", unsafe_allow_html=True)
+        st.write("Selection of recent reviews, separated into the best and worst ratings. Use this feedback to understand current strengths and pinpoint opportunities for improvement.")
         col1, col2 = st.columns(2)
         with col1:
             # recent_best_reviews
             recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             recent_best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-            st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
-            st.dataframe(recent_best_reviews, height= 200)
+            st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
+            st.dataframe(recent_best_reviews, height= 400)
         with col2:
             # recent_worst_reviews
             recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
-            st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
-            st.dataframe(recent_worst_reviews, height= 200)
+            st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
+            st.dataframe(recent_worst_reviews, height= 400)
         
-
     with tab2:
-        st.header("Customer Insights Summary")
-        col1, col2 = st.columns(2)
+        st.markdown("<h2 style='text-align: center; color: #00000;'> 📢 Customer Insights 📢 </h2>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: left; color: #00000;'> 💘 Sentiment</h4>", unsafe_allow_html=True)
+        fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
+        st.plotly_chart(fig, use_container_width=True)
 
+        col1, col2 = st.columns(2)
         with col1:
-            st.markdown("<h3 style='text-align: center;'>💪 Strengths!</h3>", unsafe_allow_html=True)
+            st.markdown("<h5 style='text-align: center;'>💪 Strengths!</h5>", unsafe_allow_html=True)
             for insight in general_insights['best']:
                 st.success('👍 ' + insight)
 
         with col2:
-            st.markdown("<h3 style='text-align: center;'>❌ Pain Points...</h3>", unsafe_allow_html=True)
+            st.markdown("<h5 style='text-align: center;'>❌ Pain Points...</h5>", unsafe_allow_html=True)
             for insight in general_insights['worst']:
                 st.error('👎 ' + insight)
 
         _, col2, _ = st.columns([1, 3, 1])
 
         with col2:
-            st.markdown("<h3 style='text-align: center;'>🔧 Areas for Improvement</h3>", unsafe_allow_html=True)
+            st.markdown("<h4 style='text-align: center;'>🔧 Areas for Improvement</h4>", unsafe_allow_html=True)
             for insight in general_insights['improve']:
                 st.warning('⚠️ ' + insight)
 
@@ -256,7 +316,7 @@ if uploaded_file is not None:
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
         with col1:
-            st.header("Reviews")
+            st.markdown("<h4 style='text-align: left; color: #00000;'>Reviews Overview</h4>", unsafe_allow_html=True)
         with col2:
             filter_min_tab2 = st.date_input("Start Date", None, key="filter_min_tab2")
         with col3:
@@ -284,8 +344,6 @@ if uploaded_file is not None:
             st.dataframe(worst_reviews, height=500)
 
     with tab3:
-        import tab_3
-        importlib.reload(tab_3)
         
         st.header("Worst Periods Insights")
         st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")

@@ -183,14 +183,14 @@ def plotSentimentTrend(df, years_limit = 2, app = False):
         x='date',
         y='percentage',
         color='sentiment_label',
-        title='Sentiment Percentage Over the Last ' + str(years_limit) + ' Years',
+        #title='Sentiment Percentage Over the Last ' + str(years_limit) + ' Years',
         labels={'date': '', 'percentage': 'Percentage of Reviews (%)', 'sentiment_label': 'Sentiment'},
         template='plotly_white',
     )
 
     # Customize layout
     fig.update_layout(
-        title=dict(x=0.5, xanchor='center', font=dict(size=18, color='black')),
+        #title=dict(x=0.5, xanchor='center', font=dict(size=18, color='black')),
         xaxis=dict(showgrid=False, zeroline=False),
         yaxis=dict(showgrid=True, title='Percentage of Reviews', ticksuffix='%'),
         legend=dict(title='', orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
@@ -198,7 +198,7 @@ def plotSentimentTrend(df, years_limit = 2, app = False):
         plot_bgcolor='rgba(0,0,0,0)',
         hovermode='x unified',
         width=1200,
-        height=400,
+        height=400
     )
 
     # Customize color for sentiment categories
