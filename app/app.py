@@ -206,12 +206,13 @@ if uploaded_file is not None:
             )
             st.plotly_chart(fig_bar, use_container_width=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Status", "General Insigths", "Worst Periods", "ML Lab"])
+    tab1, tab2, tab3, tab4 = st.tabs([" 📋 Status ", " 📢 Customer Insigths ", " 🕵🏻‍♂️ Bad times Deep Dive ", " 🧪 ML Lab "])
 
     ## Tabs
     with tab1:
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'> 📋 Status 📋</h2>", unsafe_allow_html=True)
-
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         # Year Overview
         reviews['year'] = reviews['date'].dt.year
         recent_reviews = reviews[reviews['date'] >= reviews['date'].max() - pd.DateOffset(years=8)]
@@ -280,20 +281,20 @@ if uploaded_file is not None:
             recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             recent_best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
             st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
-            st.dataframe(recent_best_reviews, height= 400)
+            st.dataframe(recent_best_reviews, height= 600)
         with col2:
             # recent_worst_reviews
             recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
             st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
-            st.dataframe(recent_worst_reviews, height= 400)
+            st.dataframe(recent_worst_reviews, height= 600)
         
     with tab2:
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'> 📢 Customer Insights 📢 </h2>", unsafe_allow_html=True)
-        st.markdown("<h4 style='text-align: left; color: #00000;'> 💘 Sentiment</h4>", unsafe_allow_html=True)
-        fig = plots.plotSentimentTrend(reviews, years_limit = 2, app = True)
-        st.plotly_chart(fig, use_container_width=True)
-
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+        st.write("These insights summarize key themes and feedback extracted from all user reviews, highlighting strengths, pain points, and areas for improvement.")
+        
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("<h5 style='text-align: center;'>💪 Strengths!</h5>", unsafe_allow_html=True)
@@ -301,52 +302,58 @@ if uploaded_file is not None:
                 st.success('👍 ' + insight)
 
         with col2:
-            st.markdown("<h5 style='text-align: center;'>❌ Pain Points...</h5>", unsafe_allow_html=True)
+            st.markdown("<h5 style='text-align: center;'>🤬 Pain Points...</h5>", unsafe_allow_html=True)
             for insight in general_insights['worst']:
                 st.error('👎 ' + insight)
 
         _, col2, _ = st.columns([1, 3, 1])
 
         with col2:
-            st.markdown("<h4 style='text-align: center;'>🔧 Areas for Improvement</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='text-align: center;'>💡 Areas for Improvement</h4>", unsafe_allow_html=True)
             for insight in general_insights['improve']:
                 st.warning('⚠️ ' + insight)
 
-        st.header('')
+        st.markdown("<h3 style='text-align: center; color: #00000;'></h3>", unsafe_allow_html=True)
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
         with col1:
-            st.markdown("<h4 style='text-align: left; color: #00000;'>Reviews Overview</h4>", unsafe_allow_html=True)
+            pass
         with col2:
             filter_min_tab2 = st.date_input("Start Date", None, key="filter_min_tab2")
         with col3:
             filter_max_tab2 = st.date_input("End Date", None, key="filter_max_tab2")
-       
-
         # Apply the filter function
         sample_reviews_filtered = addFilters(sample_reviews, filter_min_tab2, filter_max_tab2)
+        reviews_filtered = addFilters(reviews, filter_min_tab2, filter_max_tab2)
 
-        
+        st.markdown("<h4 style='text-align: left; color: #00000;'> 💘 Sentiment</h4>", unsafe_allow_html=True)
+        st.write("Monthly evolution of customer feelings over the past year, divided into positive, neutral, and negative categories. It highlights periods of higher satisfaction or concerns, helping to spot trends in customer sentiment.")
+        fig = plots.plotSentimentTrend(reviews_filtered, years_limit = 2, app = True)
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("<h4 style='text-align: left; color: #00000;'>🤓 Reviews Overview</h4>", unsafe_allow_html=True)
+        st.write("Here are recent high and low reviews, summarizing both positive feedback and areas for improvement from individual customers. Quick glance at what customers value most and where improvements can be made.")
         col1, col2 = st.columns(2)
         with col1:
             # best_reviews
             best_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'best_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
             best_reviews.fillna('', inplace=True)
-            st.markdown("<h3 style='text-align: left;'> 👍  Best!</h3>", unsafe_allow_html=True)
+            st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
             st.dataframe(best_reviews, height=500)
         with col2:
             # worst_reviews
             worst_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'worst_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
             worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
             worst_reviews.fillna('', inplace=True) 
-            st.markdown("<h3 style='text-align: left;'> 👎  Worst...</h3>", unsafe_allow_html=True)
+            st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
             st.dataframe(worst_reviews, height=500)
 
     with tab3:
-        
-        st.header("Worst Periods Insights")
-        st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #00000;'> 🕵🏻‍♂️ Bad Times Deep Dive 🕵🏻‍♂️ </h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+        st.write("Identify the lowest-rated periods based on customer reviews, highlighting specific issues and improvement opportunities during times of lower satisfaction.")
         
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
@@ -360,14 +367,14 @@ if uploaded_file is not None:
         
         ## Trend Overview
         st.markdown("<h4 style='text-align: left ;'>📝 Overview</h4>", unsafe_allow_html=True)
-        st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
+        st.write("Average monthly ratings across different categories. The chart helps pinpoint drops and peaks, providing context for periods with notable fluctuations in customer satisfaction.")
 
         fig = tab_3.plotTrend(reviews_filtered, label_mapping, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
         ## Problems by period
         st.markdown("<h4 style='text-align: left ;'>🔍 Period details</h4>", unsafe_allow_html=True)
-        st.write("Lorem ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum loren ipsum")
+        st.write("Customer feedback for the selected period, including specific problems and actionable improvement suggestions based on customer reviews. It allows a closer look at the challenges during low-rated periods.")
 
         # Filter low_score_periods based on filter_min and filter_max
         from datetime import datetime
@@ -386,21 +393,21 @@ if uploaded_file is not None:
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    st.markdown("<h5 style='text-align: center;'>❌ Problems</h5>", unsafe_allow_html=True)
+                    st.markdown("<h5 style='text-align: center;'>🤬 Problems</h5>", unsafe_allow_html=True)
                     for problem in insights['problems']:
-                        st.error('👎 ' + problem)
+                        st.error('💔 ' + problem)
 
                 with col2:
                     st.markdown("<h5 style='text-align: center;'>🔧 Areas for Improvement</h5>", unsafe_allow_html=True)
                     for improvement in insights['improve']:
-                        st.warning('⚠️ ' + improvement)
+                        st.warning('💡' + improvement)
 
                 # Reviews for the specific period
                 period_reviews = sample_reviews[(sample_reviews['month'] == period) & (sample_reviews['sample_type'] == 'low_score_reviews')][['date', 'rating_score', 'review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
                 period_reviews.rename(columns={'review': 'Review', 'rating_score': 'Rating', 'meal_type': 'Meal', 'food_score': 'Food', 'service_score': 'Service', 'atmosphere_score': 'Ambient', 'date': 'Date'}, inplace=True)
                 period_reviews.fillna('', inplace=True)
                 if period_reviews.shape[0] > 0:
-                    st.dataframe(period_reviews, height=100)
+                    st.dataframe(period_reviews, height = 150)
 
     with tab4:
 
