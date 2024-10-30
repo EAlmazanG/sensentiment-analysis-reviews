@@ -147,17 +147,17 @@ if __name__ == "__main__":
     best_reviews = valid_reviews[valid_reviews['total_score'] > 5]
     worst_reviews = valid_reviews[valid_reviews['total_score'] < 2.5]
 
-    recent_best_reviews = best_reviews.sort_values(by='date', ascending=False).head(5)
+    recent_best_reviews = best_reviews.sort_values(by='date', ascending=False)
     print('last_positive_reviews')
     print(recent_best_reviews.review)
-    recent_worst_reviews = worst_reviews.sort_values(by='date', ascending=False).head(5)
+    recent_worst_reviews = worst_reviews.sort_values(by='date', ascending=False)
     print('\nlast_negative_reviews')
     print(recent_worst_reviews.review)
 
-    best_reviews_sample = best_reviews.sort_values(by='total_score', ascending=False).head(5)
+    best_reviews_sample = best_reviews.sort_values(by='total_score', ascending=False)
     print('\nbest_reviews_sample')
     print(best_reviews_sample.review)
-    worst_reviews_sample = worst_reviews.sort_values(by='total_score', ascending=True).head(5)
+    worst_reviews_sample = worst_reviews.sort_values(by='total_score', ascending=True)
     print('\nworst_reviews_sample')
     print(worst_reviews_sample.review)
 
