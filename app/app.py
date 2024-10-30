@@ -355,12 +355,12 @@ if uploaded_file is not None:
         st.markdown("<h3 style='text-align: center; color: #00000;'></h3>", unsafe_allow_html=True)
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
-        with col1:
-            pass
+        default_start_date = reviews['date'].max() - pd.DateOffset(years=1)
+        default_end_date = reviews['date'].max()
         with col2:
-            filter_min_tab2 = st.date_input("Start Date", None, key="filter_min_tab2")
+            filter_min_tab2 = st.date_input("Start Date", default_start_date, key="filter_min_tab2")
         with col3:
-            filter_max_tab2 = st.date_input("End Date", None, key="filter_max_tab2")
+            filter_max_tab2 = st.date_input("End Date", default_end_date, key="filter_max_tab2")
         # Apply the filter function
         sample_reviews_filtered = addFilters(sample_reviews, filter_min_tab2, filter_max_tab2)
         reviews_filtered = addFilters(reviews, filter_min_tab2, filter_max_tab2)
@@ -448,10 +448,12 @@ if uploaded_file is not None:
         
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
+        default_start_date = reviews['date'].max() - pd.DateOffset(years=1)
+        default_end_date = reviews['date'].max()
         with col2:
-            filter_min_tab3 = st.date_input("Start Date", None, key="filter_min_tab3")
+            filter_min_tab3 = st.date_input("Start Date", default_start_date, key="filter_min_tab3")
         with col3:
-            filter_max_tab3 = st.date_input("End Date", None, key="filter_max_tab3")
+            filter_max_tab3 = st.date_input("End Date", default_end_date, key="filter_max_tab3")
 
         # Apply the filter function
         reviews_filtered = addFilters(reviews, filter_min_tab3, filter_max_tab3)
@@ -518,10 +520,12 @@ if uploaded_file is not None:
 
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
+        default_start_date = reviews['date'].max() - pd.DateOffset(years=1)
+        default_end_date = reviews['date'].max()
         with col2:
-            filter_min_ml = st.date_input("Start Date", None, key="filter_min_ml")
+            filter_min_ml = st.date_input("Start Date", default_start_date, key="filter_min_ml")
         with col3:
-            filter_max_ml = st.date_input("End Date", None, key="filter_max_ml")
+            filter_max_ml = st.date_input("End Date", default_end_date, key="filter_max_ml")
 
         # Apply the filter function
         reviews_filtered = addFilters(reviews, filter_min_ml, filter_max_ml)
