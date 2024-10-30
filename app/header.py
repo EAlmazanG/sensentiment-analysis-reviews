@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import pandas as pd
 
+# Display week by week evolition of main scores
 def weekEvolution(reviews, label_mapping):
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
     limit_date = reviews['date'].max()

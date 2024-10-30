@@ -14,6 +14,7 @@ from src import plots
 from src import ml_processing
 from src import llm_insights
 
+# Update necesary topics for insights extraction
 def updateTopicsDict(reviews):
     # Extract common positive and negative phrases
     common_positive_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'positive', n = 10)

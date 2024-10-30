@@ -14,6 +14,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+# Plot a basic resume of the KPIs
 def plotAverageScoresAndReviews(reviews, resumme_raw, app=False):
     # Calculate the average for each score
     average_food = reviews['food_score'].mean()
@@ -64,6 +65,7 @@ def plotAverageScoresAndReviews(reviews, resumme_raw, app=False):
     else:
         fig.show()
 
+# Plot a basic views of the KPIs
 def plotScoreTrends(reviews, app = False):
     # Convert date column to datetime format and create additional time columns
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
@@ -218,8 +220,8 @@ def plotSentimentTrend(df, years_limit = 2, app = False):
     else:
         fig.show()
 
+# Compute k-nearest neighbors
 def plotKdistance(reduced_embeddings, k=5, method='PCA', app = False):
-    # Compute k-nearest neighbors
     neighbors = NearestNeighbors(n_neighbors=k)
     neighbors_fit = neighbors.fit(reduced_embeddings)
     distances, _ = neighbors_fit.kneighbors(reduced_embeddings)

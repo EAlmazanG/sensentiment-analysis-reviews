@@ -315,7 +315,6 @@ if uploaded_file is not None:
             unsafe_allow_html=True
         )
 
-        
         col1, col2 = st.columns(2)
         # Most recommended
         with col1:

@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import re
-import json
 import os
 import sys
 
@@ -14,16 +12,13 @@ from plotly.subplots import make_subplots
 
 import networkx as nx
 
-from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 sys.path.append(os.path.abspath(os.path.join('..')))
-from src import plots
 from src import ml_processing
 
-
-def plotTrend(reviews, label_mapping, app=False, filter_min=None, filter_max=None):
+# Plot detail trend month by month of selected scores
+def plotTrend(reviews, label_mapping, app=False):
     # Convert date column to datetime format and create additional time columns
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
     reviews['month'] = reviews['date'].dt.to_period('M')
