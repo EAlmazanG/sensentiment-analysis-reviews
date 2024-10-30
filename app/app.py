@@ -15,6 +15,8 @@ from src import plots
 importlib.reload(plots)
 from src import ml_processing
 importlib.reload(ml_processing)
+from src import llm_insights
+importlib.reload(llm_insights)
 
 import tab_1
 importlib.reload(tab_1)
@@ -278,6 +280,38 @@ if uploaded_file is not None:
         fig_trend = tab_3.plotTrend(recent_reviews, label_mapping, app = True)
         st.plotly_chart(fig_trend, use_container_width=True, key="fig_month_trend_tab1")
 
+        st.markdown("<h4 style='text-align: left; color: #000;'>🤩 Recommendations</h4>", unsafe_allow_html=True)
+        st.write("Discover the top and least recommended items based on user feedback. Here are the highlights for the most popular and least favored choices from our reviews.")
+
+        # Análisis de recomendaciones
+        most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
+
+        # Añadimos estilo CSS para reducir el espacio entre elementos de la lista
+        st.markdown(
+            """
+            <style>
+            ul {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # Columnas para mostrar las recomendaciones más y menos recomendadas
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("<h5 style='text-align: left; color: #000;'>✚ Most Recommended</h5>", unsafe_allow_html=True)
+            for item in most_recommended[:5]:
+                st.markdown(f"👌🏽 {item[0]} ({item[1]} times)")
+
+        with col2:
+            st.markdown("<h5 style='text-align: left; color: #000;'>− Least Recommended</h5>", unsafe_allow_html=True)
+            for item in less_recommended[:5]:
+                st.markdown(f"🍽️ {item}")
+
         st.markdown("<h4 style='text-align: left; color: #00000;'>🚨 Last Reviews</h4>", unsafe_allow_html=True)
         st.write("Selection of recent reviews, separated into the best and worst ratings. Use this feedback to understand current strengths and pinpoint opportunities for improvement.")
         col1, col2 = st.columns(2)
@@ -335,6 +369,58 @@ if uploaded_file is not None:
         st.write("Monthly evolution of customer feelings over the past year, divided into positive, neutral, and negative categories. It highlights periods of higher satisfaction or concerns, helping to spot trends in customer sentiment.")
         fig = plots.plotSentimentTrend(reviews_filtered, years_limit = 2, app = True)
         st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("<h4 style='text-align: left; color: #00000;'>📢 Customer insights for selected period</h4>", unsafe_allow_html=True)
+        st.write("Summarize key themes and feedback extracted from user reviews of the selected period. Highlighting strengths, pain points, and areas for improvement.")
+
+        _, col2 = st.columns([6, 2])
+        with col2:
+            filter_number_insights = st.number_input("Number of Insights per category", min_value= 2, max_value=5, value=2, key="filter_number_insights")
+            filter_number_insights = int(filter_number_insights) if filter_number_insights is not None else 2
+        
+        # Update topics with selected  revuews
+        reviews_summary_dict = tab_1.updateTopicsDict(reviews_filtered)
+
+        ## Extract Insights with LLM
+        client = llm_insights.initChatGPTClient()
+
+        # Generate insights
+        general_insights_prompt = (
+            "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms, in JSON format.\n"
+            f"I want you to extract:\n"
+            f"- {filter_number_insights} positive points\n"
+            f"- {filter_number_insights} negative points\n"
+            f"- {filter_number_insights} improvement suggestions based on the negative points\n"
+            "\n"
+            "Each point should be a logical, simple, and concise sentence that provides value. Do not name specific terms or topics, but focus on delivering direct value to business stakeholders without ambiguity. If you mention something that didn't go well, give examples based on the information.\n"
+            "Return the result in English in JSON format, ensuring it is easy to read in a notebook and standardized as follows:\n"
+            "\n"
+            "{best:['','',''], worst:['','',''], improve:['','','']}\n"
+            "\n"
+            "Ensure there are no contradictions between positive, negative, and improvement points.\n"
+            "The information:\n"
+        )
+        insigths_summary_updated = llm_insights.extractInsightsWithLLM(reviews_summary_dict, general_insights_prompt, client)
+
+        # Write insights
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("<h5 style='text-align: center;'>💪 Strengths!</h5>", unsafe_allow_html=True)
+            for insight in insigths_summary_updated['best']:
+                st.success('👍 ' + insight)
+
+        with col2:
+            st.markdown("<h5 style='text-align: center;'>🤬 Pain Points...</h5>", unsafe_allow_html=True)
+            for insight in insigths_summary_updated['worst']:
+                st.error('👎 ' + insight)
+
+        _, col2, _ = st.columns([1, 3, 1])
+
+        with col2:
+            st.markdown("<h4 style='text-align: center;'>💡 Areas for Improvement</h4>", unsafe_allow_html=True)
+            for insight in insigths_summary_updated['improve']:
+                st.warning('⚠️ ' + insight)
+
 
         st.markdown("<h4 style='text-align: left; color: #00000;'>🤓 Reviews Overview</h4>", unsafe_allow_html=True)
         st.write("Here are recent high and low reviews, summarizing both positive feedback and areas for improvement from individual customers. Quick glance at what customers value most and where improvements can be made.")
