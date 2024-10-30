@@ -137,6 +137,11 @@ if uploaded_file is not None:
         'service_score': 'Service',
         'atmosphere_score': 'Ambient'
     }
+    label_keys = list(label_mapping.keys())
+    additional_label_mapping = {
+        'meal_type': 'Meal'
+    }
+    additional_label_keys = list(additional_label_mapping.keys())
 
     ## Header plots
     average_score = (resume['stars'] * resume['reviews']).sum() / resume['reviews'].sum()
@@ -216,7 +221,7 @@ if uploaded_file is not None:
         # Year Overview
         reviews['year'] = reviews['date'].dt.year
         recent_reviews = reviews[reviews['date'] >= reviews['date'].max() - pd.DateOffset(years=8)]
-        yearly_avg_scores = recent_reviews.groupby('year')['rating_score'].mean()
+        yearly_avg_scores = recent_reviews.groupby('year')[label_keys[0]].mean()
 
         fig = go.Figure(
             go.Scatter(
@@ -278,14 +283,14 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2)
         with col1:
             # recent_best_reviews
-            recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-            recent_best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
+            recent_best_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
             st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
             st.dataframe(recent_best_reviews, height= 600)
         with col2:
             # recent_worst_reviews
-            recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-            recent_worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
+            recent_worst_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
             st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
             st.dataframe(recent_worst_reviews, height= 600)
         
@@ -336,15 +341,15 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2)
         with col1:
             # best_reviews
-            best_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'best_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-            best_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            best_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'best_reviews_sample'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
+            best_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
             best_reviews.fillna('', inplace=True)
             st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
             st.dataframe(best_reviews, height=500)
         with col2:
             # worst_reviews
-            worst_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'worst_reviews_sample'][['date', 'rating_score','review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-            worst_reviews.rename(columns = {'review':'Review', 'rating_score':'Rating', 'meal_type':'Meal','food_score':'Food', 'service_score':'Service', 'atmosphere_score':'Ambient', 'date':'Date'}, inplace = True)
+            worst_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'worst_reviews_sample'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
+            worst_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
             worst_reviews.fillna('', inplace=True) 
             st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
             st.dataframe(worst_reviews, height=500)
@@ -403,8 +408,8 @@ if uploaded_file is not None:
                         st.warning('💡' + improvement)
 
                 # Reviews for the specific period
-                period_reviews = sample_reviews[(sample_reviews['month'] == period) & (sample_reviews['sample_type'] == 'low_score_reviews')][['date', 'rating_score', 'review', 'food_score', 'service_score', 'atmosphere_score', 'meal_type']]
-                period_reviews.rename(columns={'review': 'Review', 'rating_score': 'Rating', 'meal_type': 'Meal', 'food_score': 'Food', 'service_score': 'Service', 'atmosphere_score': 'Ambient', 'date': 'Date'}, inplace=True)
+                period_reviews = sample_reviews[(sample_reviews['month'] == period) & (sample_reviews['sample_type'] == 'low_score_reviews')][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
+                period_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
                 period_reviews.fillna('', inplace=True)
                 if period_reviews.shape[0] > 0:
                     st.dataframe(period_reviews, height = 150)
