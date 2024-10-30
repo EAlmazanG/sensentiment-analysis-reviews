@@ -345,8 +345,8 @@ def plotCommunities(reviews, app = False):
 
     fig = go.Figure(data=[edge_trace, node_trace],
                     layout=go.Layout(
-                        title='Reviews by Communities',
-                        titlefont_size=16,
+                        #title='Reviews by Communities',
+                        #titlefont_size=16,
                         showlegend=False,
                         hovermode='closest',
                         margin=dict(b=20, l=5, r=5, t=40),

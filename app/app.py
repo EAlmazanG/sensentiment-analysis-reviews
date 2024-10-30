@@ -418,8 +418,18 @@ if uploaded_file is not None:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'>🧪 ML Lab 🧪</h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
-        st.write("...")
-        
+        st.write("""
+        Do you have ML knowledge and want to play with algorithm parameters?  
+        This advanced tab gives you a peek into the ML processes behind our insights. Here, you can experiment with:
+
+        - **Sentence Communities:** See how reviews cluster around common themes.
+        - **Dimensional Reduction (PCA & UMAP):** Adjust settings to visualize review patterns in scores or sentiment.
+        - **k-Distance Graphs:** Find the best `eps` for DBSCAN clustering by tweaking distances.
+        - **Clustering (DBSCAN with PCA & UMAP):** Explore how different settings group similar reviews.
+
+        Dive in to understand how we extract meaningful insights from customer feedback!
+        """)
+
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
         with col2:
@@ -430,49 +440,70 @@ if uploaded_file is not None:
         # Apply the filter function
         reviews_filtered = addFilters(reviews, filter_min_ml, filter_max_ml)
 
-        fig = plots.plotCommunities(reviews, app = True)
+        fig = plots.plotCommunities(reviews_filtered, app = True)
 
-        st.markdown("<h4 style='text-align: left ;'> Sentence Communities</h4>", unsafe_allow_html=True)
-        st.write("Average monthly ratings across different categories. The chart helps pinpoint drops and peaks, providing context for periods with notable fluctuations in customer satisfaction.")
+        st.markdown("<h4 style='text-align: left ;'>🫂 Sentence Communities</h4>", unsafe_allow_html=True)
+        st.write("Shows how phrases in reviews group into communities based on meaning. By converting phrases into vectors, we can identify common themes, providing insights into recurring opinions about the venue.")
         st.plotly_chart(fig, use_container_width=True)
 
-        st.write('Add topics')
-
-        st.markdown("<h4 style='text-align: left ;'>🧩 Dimensional reduccion</h4>", unsafe_allow_html=True)
-        st.write("Average monthly ratings across different categories. The chart helps pinpoint drops and peaks, providing context for periods with notable fluctuations in customer satisfaction.")
+        st.markdown("<h4 style='text-align: left ;'>🧩 Dimensional reduction and clustering</h4>", unsafe_allow_html=True)
+        st.write("To simplify analysis, we use dimensionality reduction techniques like PCA and UMAP. These help display complex data patterns in 2D, revealing trends related to review scores or sentiment.")
         st.write("")
 
         col1, col2 = st.columns(2)
         with col1:
-            embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot = False, app = True)
-            st.markdown("<h3 style='text-align: center ;'>PCA</h3>", unsafe_allow_html=True)
-            st.write('Add topics')
+            embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews_filtered, plot = False, app = True)
+            st.markdown("<h3 style='text-align: center ;'>⚙️ PCA</h3>", unsafe_allow_html=True)
+            st.write("PCA projects reviews into a lower-dimensional space, retaining the most variance. Each point represents a review, colored by its rating. This visualization helps identify any clustering based on review scores.")
             st.plotly_chart(fig, use_container_width=True)
         with col2:
-            embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot = False, app = True)
-            st.markdown("<h3 style='text-align: center ;'>UMAP</h3>", unsafe_allow_html=True)
-            st.write('Add topics')
+            embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews_filtered, plot = False, app = True)
+            st.markdown("<h3 style='text-align: center ;'>⚙️ UMAP</h3>", unsafe_allow_html=True)
+            st.write("UMAP preserves local structure, useful for detecting intricate patterns. Here, each point is a review, colored by sentiment. It shows if positive, neutral, and negative reviews form distinct groups.")
             st.plotly_chart(fig, use_container_width=True)
-
-        st.write('lorem ipsum')
+        
+        st.write("")
+        st.write("To determine the optimal eps parameter for clustering the samples, we can use the **k-distance grap**, which allows us to find the optimal eps value. A strong increase indicates a suitable eps for well-defined clusters.")
+        
+        
+        _, col2 = st.columns([10, 2])
+        with col2:
+            filter_k = st.number_input("Choose K", min_value=1, max_value=100, value=10, key="filter_k")
+            filter_k = int(filter_k) if filter_k is not None else 10
+                
         col1, col2 = st.columns(2)
         with col1:
-            fig = plots.plotKdistance(embeddings_umap, k= 10, method='PCA', app = True)
+            fig = plots.plotKdistance(embeddings_umap, k= filter_k, method='PCA', app = True)
             st.plotly_chart(fig, use_container_width=True)
         with col2:
-            fig = plots.plotKdistance(embeddings_pca, k= 10, method='UMAP', app = True)
+            fig = plots.plotKdistance(embeddings_pca, k= filter_k, method='UMAP', app = True)
             st.plotly_chart(fig, use_container_width=True)
 
-        st.write('lorem ipsum')
+        st.write("")
+        st.write("Combining PCA or UMAP with DBSCAN helps identify clusters of similar reviews. Each point represents a review, colored by cluster, highlighting specific trends in customer feedback.")
+        
+        _, col2, col3 = st.columns([4, 2, 2])
+        with col2:
+            filter_eps = st.number_input("Choose EPS value", min_value=0.1, max_value=5.0, value=0.5, step=0.1, key="filter_eps")
+            filter_eps = float(filter_eps) if filter_eps is not None else 0.5
+        with col3:
+            filter_min_samples = st.number_input("Choose minimum samples", min_value=2, max_value=20, value=5, step=1, key="filter_min_samples")
+            filter_min_samples = int(filter_min_samples) if filter_min_samples is not None else 5
+        
         col1, col2 = st.columns(2)
         with col1:
-            pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
+            pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
             st.plotly_chart(fig, use_container_width=True)
+            
         with col2:
-            umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = False, app = True)
+            umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
             st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("<h4 style='text-align: left ;'> 📚 Extract Topics </h4>", unsafe_allow_html=True)
+        st.write("But what are the most important topics in each of our clusters? We can use the extraction of topics from the clusters to see which are the most important terms in our clusters.")
 
-        st.write('Add topics')
+
+
 
 else:
     st.write("Please upload a ML processed CSV file to start.")
