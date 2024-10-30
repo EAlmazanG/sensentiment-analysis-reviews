@@ -8,7 +8,6 @@ import sys
 import importlib
 
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join('..')))
 from src import plots

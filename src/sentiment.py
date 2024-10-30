@@ -41,6 +41,15 @@ if __name__ == "__main__":
 
     print(reviews[['review', 'cleaned_review']].sample(5))
 
+    # Label mapping for interest columns and label name
+    label_mapping = {
+        'rating_score': 'Rating',
+        'food_score': 'Food',
+        'service_score': 'Service',
+        'atmosphere_score': 'Ambient'
+    }
+    label_keys = list(label_mapping.keys())
+
     ## Analyze sentiment
     # Analyze sentiment with VADER
     reviews = ml_processing.analyzeSentiment(reviews)
@@ -100,15 +109,15 @@ if __name__ == "__main__":
     num_periods = 3  # Number of periods with the lowest average score to select
 
     # Analyze for each score type
-    negative_periods_rating_reviews, low_score_periods = ml_processing.analyzeLowScores(reviews, 'rating_score', time_period, num_periods)
-    negative_periods_food_reviews, _ = ml_processing.analyzeLowScores(reviews, 'food_score', time_period, num_periods)
-    negative_periods_service_reviews, _ = ml_processing.analyzeLowScores(reviews, 'service_score', time_period, num_periods)
-    negative_periods_atmosphere_reviews, _ = ml_processing.analyzeLowScores(reviews, 'atmosphere_score', time_period, num_periods)
+    negative_periods_rating_reviews, low_score_periods = ml_processing.analyzeLowScores(reviews, label_keys[0], time_period, num_periods)
+    negative_periods_food_reviews, _ = ml_processing.analyzeLowScores(reviews, label_keys[1], time_period, num_periods)
+    negative_periods_service_reviews, _ = ml_processing.analyzeLowScores(reviews, label_keys[2], time_period, num_periods)
+    negative_periods_atmosphere_reviews, _ = ml_processing.analyzeLowScores(reviews, label_keys[3], time_period, num_periods)
 
-    negative_periods_rating_topics = ml_processing.generateTopicsPerPeriod(negative_periods_rating_reviews, 'rating_score')
-    negative_periods_food_topics = ml_processing.generateTopicsPerPeriod(negative_periods_food_reviews, 'food_score')
-    negative_periods_service_topics = ml_processing.generateTopicsPerPeriod(negative_periods_service_reviews, 'service_score')
-    negative_periods_atmosphere_topics = ml_processing.generateTopicsPerPeriod(negative_periods_atmosphere_reviews, 'atmosphere_score')
+    negative_periods_rating_topics = ml_processing.generateTopicsPerPeriod(negative_periods_rating_reviews, label_keys[0])
+    negative_periods_food_topics = ml_processing.generateTopicsPerPeriod(negative_periods_food_reviews, label_keys[1])
+    negative_periods_service_topics = ml_processing.generateTopicsPerPeriod(negative_periods_service_reviews, label_keys[2])
+    negative_periods_atmosphere_topics = ml_processing.generateTopicsPerPeriod(negative_periods_atmosphere_reviews, label_keys[3])
 
     negative_periods_topics = {**negative_periods_rating_topics, **negative_periods_food_topics, **negative_periods_service_topics, **negative_periods_atmosphere_topics}
 
@@ -128,17 +137,17 @@ if __name__ == "__main__":
     ## Extract reviews samples
     # Calculate total score using the three main scores
     reviews_score = reviews.copy()
-    food_score_mean = np.round(reviews_score['food_score'].mean(), 2) / 5
-    service_score_mean = np.round(reviews_score['service_score'].mean(), 2) / 5
-    atmosphere_score_mean = np.round(reviews_score['atmosphere_score'].mean(), 2) / 5
+    food_score_mean = np.round(reviews_score[label_keys[1]].mean(), 2) / 5
+    service_score_mean = np.round(reviews_score[label_keys[2]].mean(), 2) / 5
+    atmosphere_score_mean = np.round(reviews_score[label_keys[3]].mean(), 2) / 5
 
-    reviews_score['food_score'] = reviews_score['food_score'].fillna(food_score_mean)
-    reviews_score['service_score'] = reviews_score['service_score'].fillna(service_score_mean)
-    reviews_score['atmosphere_score'] = reviews_score['atmosphere_score'].fillna(atmosphere_score_mean)
+    reviews_score[label_keys[1]] = reviews_score[label_keys[1]].fillna(food_score_mean)
+    reviews_score[label_keys[2]] = reviews_score[label_keys[2]].fillna(service_score_mean)
+    reviews_score[label_keys[3]] = reviews_score[label_keys[3]].fillna(atmosphere_score_mean)
 
     reviews_score['total_score'] = np.round(
-        reviews_score['rating_score'] +
-        (reviews_score['food_score']/5 + reviews_score['service_score']/5 + reviews_score['atmosphere_score']/5) / 3, 2)
+        reviews_score[label_keys[0]] +
+        (reviews_score[label_keys[1]]/5 + reviews_score[label_keys[2]]/5 + reviews_score[label_keys[3]]/5) / 3, 2)
 
     # Filter not null reviews
     valid_reviews = reviews_score[reviews_score['review'].notna()]
@@ -161,7 +170,7 @@ if __name__ == "__main__":
     print('\nworst_reviews_sample')
     print(worst_reviews_sample.review)
 
-    low_score_reviews = negative_periods_rating_reviews[negative_periods_rating_reviews['review'].notna()][['month','review','rating_score']]
+    low_score_reviews = negative_periods_rating_reviews[negative_periods_rating_reviews['review'].notna()][['month','review',label_keys[0]]]
     print('\nlow_score_reviews')
     print(low_score_reviews)
     print(low_score_periods)
