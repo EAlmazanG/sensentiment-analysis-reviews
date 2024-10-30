@@ -44,7 +44,7 @@ def clean_text(text):
     return ' '.join(tokens)
 
 # Extract sentiment for each review using 
-def analyzeSentiment(df):
+def analyzeSentiment(df, score_colum = 'rating_score',):
     # Initialize VADER sentiment analyzer
     sia = SentimentIntensityAnalyzer()
 
@@ -52,10 +52,10 @@ def analyzeSentiment(df):
     df['vader_sentiment'] = df['cleaned_review'].apply(lambda x: sia.polarity_scores(x)['compound'])
     
     # Classify sentiment into positive, neutral, negative using rating_score and vader_sentiment
-    def classify_sentiment(row):
-        if row['rating_score'] >= 4:
+    def classify_sentiment(row, score_colum = score_colum):
+        if row[score_colum] >= 4:
             return 'positive'
-        elif row['rating_score'] <= 2:
+        elif row[score_colum] <= 2:
             return 'negative'
         elif row['vader_sentiment'] > 0.05:
             return 'positive'
@@ -305,10 +305,10 @@ def calculateAndVisualizeEmbeddingsUMAP(df, plot = True, app = False):
         return reduced_embeddings
 
 # PCA Embeddings Visualization
-def calculateAndVisualizeEmbeddingsPCA(df, plot = True, app = False):
+def calculateAndVisualizeEmbeddingsPCA(df, score_column = 'rating_score', plot = True, app = False):
     # Convert embeddings to a NumPy array
     embeddings = np.array(df['embedding'].tolist())
-    ratings = df['rating_score']
+    ratings = df[score_column]
     
     # Perform PCA for dimensionality reduction
     pca = PCA(n_components=2)
@@ -362,9 +362,9 @@ def calculateAndVisualizeEmbeddingsPCA(df, plot = True, app = False):
         return reduced_embeddings
 
 # PCA Visualization with DBSCAN
-def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10, plot = True, app = False):
+def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, score_column = 'rating_score', eps=0.55, min_samples=10, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
-    ratings = df['rating_score']
+    ratings = df[score_column]
     
     pca = PCA(n_components=2)
     reduced = pca.fit_transform(embeddings)
@@ -375,7 +375,7 @@ def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10,
     plot_df = pd.DataFrame({
         'pca_component_1': reduced[:, 0],
         'pca_component_2': reduced[:, 1],
-        'rating_score': ratings,
+        score_column: ratings,
         'pca_cluster': clusters,
         'review_id': df.get('review_id', range(len(df)))
     })
@@ -386,7 +386,7 @@ def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10,
         y='pca_component_2',
         color='pca_cluster',
         color_continuous_scale='Viridis',
-        hover_data=['review_id', 'rating_score'],
+        hover_data=['review_id', score_column],
         title=f'PCA with DBSCAN (PCA1: {var1:.1f}%, PCA2: {var2:.1f}%)',
         labels={
             'PCA 1': f'pca_component_1 ({var1:.1f}% variance)',

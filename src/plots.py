@@ -80,11 +80,6 @@ def plotScoreTrends(reviews, app = False):
     last_years = reviews[reviews['date'] >= limit_date - pd.DateOffset(years=8)]
     last_weeks = reviews[reviews['date'] >= limit_date - pd.DateOffset(weeks=5)]
 
-    # Compute averages for the required periods
-    monthly_avg_scores = last_months.groupby('month')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
-    yearly_avg_scores = last_years.groupby('year')[['rating_score']].mean()
-    weekly_avg_scores = last_weeks.groupby('week')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
-
     # Update the axis labels for each score to be more readable
     label_mapping = {
         'rating_score': 'Rating',
@@ -92,6 +87,11 @@ def plotScoreTrends(reviews, app = False):
         'service_score': 'Service',
         'atmosphere_score': 'Atmosphere'
     }
+
+    # Compute averages for the required periods
+    monthly_avg_scores = last_months.groupby('month')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
+    yearly_avg_scores = last_years.groupby('year')[['rating_score']].mean()
+    weekly_avg_scores = last_weeks.groupby('week')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
 
     # Create a figure with subplots using the Z-layout
     fig = make_subplots(rows=2, cols=2,
