@@ -48,19 +48,19 @@ def plotTrend(reviews, label_mapping, app=False, filter_min=None, filter_max=Non
 
 
     # Analyze low scores and find high score
-    _, low_score_periods = ml_processing.analyzeLowScores(reviews, 'rating_score', num_periods=3)
-    high_score_period = monthly_avg_scores['rating_score'].idxmax()
-    high_score_value = monthly_avg_scores['rating_score'].max()
+    _, low_score_periods = ml_processing.analyzeLowScores(reviews, columns_to_average[0], num_periods=3)
+    high_score_period = monthly_avg_scores[columns_to_average[0]].idxmax()
+    high_score_value = monthly_avg_scores[columns_to_average[0]].max()
     
     # Add annotations for low scores
     for i in range(len(low_score_periods)):
         if i > 0 and low_score_periods[i] - low_score_periods[i - 1] == 1:
             # If two periods are contiguous, combine them in one annotation
-            fig.add_annotation(x=str(low_score_periods[i]), y=monthly_avg_scores.loc[low_score_periods[i], 'rating_score'] + 0.5,
+            fig.add_annotation(x=str(low_score_periods[i]), y=monthly_avg_scores.loc[low_score_periods[i], columns_to_average[0]] + 0.5,
                                text=f"Drop in {low_score_periods[i - 1].strftime('%B')} & {low_score_periods[i].strftime('%B')}",
                                showarrow=True, arrowhead=2, ax=0, ay=-40, row=1, col=1)
         elif i == 0 or low_score_periods[i] - low_score_periods[i - 1] != 1:
-            fig.add_annotation(x=str(low_score_periods[i]), y=monthly_avg_scores.loc[low_score_periods[i], 'rating_score'] + 0.5,
+            fig.add_annotation(x=str(low_score_periods[i]), y=monthly_avg_scores.loc[low_score_periods[i], columns_to_average[0]] + 0.5,
                                text=f"Drop in {low_score_periods[i].strftime('%B')}",
                                showarrow=True, arrowhead=2, ax=0, ay=-40, row=1, col=1)
     

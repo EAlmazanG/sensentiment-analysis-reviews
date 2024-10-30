@@ -8,7 +8,7 @@ def weekEvolution(reviews, label_mapping):
     reviews['week'] = reviews['week'].dt.strftime('%Y-%m-%d')
 
     last_weeks = reviews[reviews['date'] >= limit_date - pd.DateOffset(weeks=4)]
-    weekly_avg_scores = last_weeks.groupby('week')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
+    weekly_avg_scores = last_weeks.groupby('week')[list(label_mapping.keys())].mean()
 
     fig_line = go.Figure()
     color_line = ['#32CD32', 'rgba(31, 119, 180, 0.8)', 'rgba(107, 174, 214, 0.8)', 'rgba(158, 202, 225, 0.8)'] 
