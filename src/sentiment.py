@@ -88,11 +88,11 @@ if __name__ == "__main__":
     reviews['embedding'] = reviews['cleaned_review'].progress_apply(ml_processing.get_embedding)
 
     ## Analyze embeddings
-    embeddings_pca = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot)
+    embeddings_pca = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, score_column = label_keys[0], plot = plot)
     embeddings_umap = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot)
 
     # Visualize with DBSCAN clusters
-    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=eps, min_samples=min_samples, plot = plot)
+    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, score_column = label_keys[0], eps=eps, min_samples=min_samples, plot = plot)
     umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=eps, min_samples=min_samples, plot = plot)
 
     if plot:

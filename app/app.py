@@ -574,7 +574,7 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2)
         # PCA
         with col1:
-            embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews_filtered, plot = False, app = True)
+            embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews_filtered, score_column = label_keys[0], plot = False, app = True)
             st.markdown("<h3 style='text-align: center ;'>⚙️ PCA</h3>", unsafe_allow_html=True)
             st.write("PCA projects reviews into a lower-dimensional space, retaining the most variance. Each point represents a review, colored by its rating. This visualization helps identify any clustering based on review scores.")
             st.plotly_chart(fig, use_container_width=True)
@@ -621,7 +621,7 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2)
         # dbscan PCA
         with col1:
-            pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
+            pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews_filtered, score_column = label_keys[0], eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
             st.plotly_chart(fig, use_container_width=True)
     
         # dbscan UMAP

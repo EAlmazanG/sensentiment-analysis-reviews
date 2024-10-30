@@ -214,7 +214,7 @@ def generateTopicsbyColumn(reviews, group_columns):
     return topics_dict
 
 # Extract the periods with less score and the reviews of each period
-def analyzeLowScores(df, score_column, time_period='month', num_periods=1, last_periods = 12):
+def analyzeLowScores(df, score_column = 'rating_score', time_period='month', num_periods=1, last_periods = 12):
     # Generate extra granularity
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df['month'] = df['date'].dt.to_period('M')
@@ -251,7 +251,7 @@ def analyzeLowScores(df, score_column, time_period='month', num_periods=1, last_
     return period_reviews, low_score_periods
 
 # Calculate topics for each low_score_period and concatenate results
-def generateTopicsPerPeriod(df, score_column, number_of_topics=1):
+def generateTopicsPerPeriod(df, score_column = 'rating_score', number_of_topics=1):
     valid_reviews = df[df['review'].notna()]
     topics_dict = {score_column: {}}
     for period in valid_reviews['low_score_period'].unique():
