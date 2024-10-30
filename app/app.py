@@ -32,6 +32,7 @@ def loadData(uploaded_file):
         return pd.read_csv(uploaded_file)
     return None
 
+# Load all necessary files processed in sentiment.py
 def loadAdditionalData(reviews, raw_path, processed_path):
     if 'embedding' in reviews.columns:
         # Convert embeddings from string to list of floats
@@ -40,7 +41,6 @@ def loadAdditionalData(reviews, raw_path, processed_path):
     file_name = uploaded_file.name
     place = extractPrefix(file_name)
     
-    #st.markdown("<h3 style='text-align: center; color: #00000;'> 📊 ⭐ Sentiment Analysis Reviews ⭐ 📊</h3>", unsafe_allow_html=True)
     st.markdown(f"<h1 style='text-align: center; color: #000000;'>🍴 {place.upper()} 🍴</h1>", unsafe_allow_html=True)
 
     # Paths for the JSON and additional CSV files
@@ -81,14 +81,16 @@ def loadAdditionalData(reviews, raw_path, processed_path):
     
     return place, reviews, sample_reviews, resume, general_insights, worst_periods_insights 
 
+# Split the filename and extract the part before "_ml"
 def extractPrefix(file_name):
-    # Split the filename and extract the part before "_ml"
     return file_name.split('_ml')[0]
 
+# Load Json file with calculated insights
 def loadJson(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
 
+# Format correctly the Embeddings column
 def reFormatEmbeddings(embedding_str):
     cleaned_str = re.sub(r'[\[\]\n]', '', embedding_str)
     embedding_list = list(map(float, cleaned_str.split()))
@@ -112,6 +114,14 @@ def addFilters(reviews, filter_min, filter_max):
     selected_reviews = reviews[(reviews['date'] >= start_date) & (reviews['date'] <= end_date)]
     return selected_reviews
 
+# Format topics to write them in app
+def format_topic_terms(terms):
+    if isinstance(terms, list):
+        return ", ".join([f'{weight}*"{term}"' for weight, term in terms])
+    else:
+        return str(terms) 
+            
+# Data Paths
 processed_path = '../data/processed/'
 raw_path = '../data/raw/'
 
@@ -130,9 +140,9 @@ if uploaded_file is not None:
     ## Load all necessary data
     # Load reviews data and extract place from the file name
     reviews = loadData(uploaded_file)
-    
     place, reviews, sample_reviews, resume, general_insights, worst_periods_insights = loadAdditionalData(reviews, raw_path, processed_path)
 
+    # Label mapping for interest columns and label name
     label_mapping = {
         'rating_score': 'Rating',
         'food_score': 'Food',
@@ -148,7 +158,7 @@ if uploaded_file is not None:
     ## Header plots
     average_score = (resume['stars'] * resume['reviews']).sum() / resume['reviews'].sum()
 
-    # Display average score with stars
+    # Average score with stars
     stars = "⭐️" * int(round(average_score))
     st.markdown(
         f"""
@@ -158,18 +168,21 @@ if uploaded_file is not None:
         """, unsafe_allow_html=True
     )
     st.markdown(f"<h4 style='text-align: center; color: #000000;'></h4>", unsafe_allow_html=True)
-    # Layout columns
-    col1, col2 = st.columns([10, 12])
 
+    col1, col2 = st.columns([10, 12])
+    # Last 4 weeks trend
     with col1:
+        
         fig_line = header.weekEvolution(reviews, label_mapping)
         st.markdown("<h4 style='text-align: left;'>📆 Last 4 weeks</h4>", unsafe_allow_html=True)
         st.plotly_chart(fig_line)
 
-    # Donut chart for reviews distribution
+    # Distribution of reviews
     with col2:
+        
         st.markdown("<h4 style='text-align: left;'>⭐ Distribution</h4>", unsafe_allow_html=True)
         col21, col22 = st.columns(2)
+        # Donut chart for reviews distribution
         with col21:
             color_scale = ['#4CAF50', '#8BC34A', '#FFEB3B', '#FFC107', '#F44336']  # Green to Red scale
             resume['stars_label'] = resume['stars'].apply(lambda x: '⭐' * x)  # Convert stars to labels
@@ -190,9 +203,10 @@ if uploaded_file is not None:
                 width=250
             )
             st.plotly_chart(fig_donut, use_container_width=True)
-
+        
         # Bar chart for reviews count by score
         with col22:
+            
             st.markdown("<h4 style='text-align: center;'> </h4>", unsafe_allow_html=True)
             fig_bar = go.Figure(
                 go.Bar(
@@ -213,9 +227,10 @@ if uploaded_file is not None:
             )
             st.plotly_chart(fig_bar, use_container_width=True)
 
+    ## Tabs
     tab1, tab2, tab3, tab4 = st.tabs([" 📋 Status ", " 📢 Customer Insigths ", " 🕵🏻‍♂️ Bad times Deep Dive ", " 🧪 ML Lab "])
 
-    ## Tabs
+    # Status tab
     with tab1:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'> 📋 Status 📋</h2>", unsafe_allow_html=True)
@@ -328,6 +343,7 @@ if uploaded_file is not None:
             st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
             st.dataframe(recent_worst_reviews, height= 600)
         
+    # Insights tab
     with tab2:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'> 📢 Customer Insights 📢 </h2>", unsafe_allow_html=True)
@@ -440,6 +456,7 @@ if uploaded_file is not None:
             st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
             st.dataframe(worst_reviews, height=500)
 
+    # Bad times tab
     with tab3:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'> 🕵🏻‍♂️ Bad Times Deep Dive 🕵🏻‍♂️ </h2>", unsafe_allow_html=True)
@@ -502,6 +519,7 @@ if uploaded_file is not None:
                 if period_reviews.shape[0] > 0:
                     st.dataframe(period_reviews, height = 150)
 
+    # ML Lab tab
     with tab4:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'>🧪 ML Lab 🧪</h2>", unsafe_allow_html=True)
@@ -530,41 +548,49 @@ if uploaded_file is not None:
         # Apply the filter function
         reviews_filtered = addFilters(reviews, filter_min_ml, filter_max_ml)
 
-        fig = plots.plotCommunities(reviews_filtered, app = True)
-
+        ## Plots
+        # Communities
         st.markdown("<h4 style='text-align: left ;'>🫂 Sentence Communities</h4>", unsafe_allow_html=True)
         st.write("Shows how phrases in reviews group into communities based on meaning. By converting phrases into vectors, we can identify common themes, providing insights into recurring opinions about the venue.")
+        fig = plots.plotCommunities(reviews_filtered, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
+        # Dimensional reduction and clustering
         st.markdown("<h4 style='text-align: left ;'>🧩 Dimensional reduction and clustering</h4>", unsafe_allow_html=True)
         st.write("To simplify analysis, we use dimensionality reduction techniques like PCA and UMAP. These help display complex data patterns in 2D, revealing trends related to review scores or sentiment.")
         st.write("")
 
         col1, col2 = st.columns(2)
+        # PCA
         with col1:
             embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews_filtered, plot = False, app = True)
             st.markdown("<h3 style='text-align: center ;'>⚙️ PCA</h3>", unsafe_allow_html=True)
             st.write("PCA projects reviews into a lower-dimensional space, retaining the most variance. Each point represents a review, colored by its rating. This visualization helps identify any clustering based on review scores.")
             st.plotly_chart(fig, use_container_width=True)
+        
+        # UMAP
         with col2:
             embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews_filtered, plot = False, app = True)
             st.markdown("<h3 style='text-align: center ;'>⚙️ UMAP</h3>", unsafe_allow_html=True)
             st.write("UMAP preserves local structure, useful for detecting intricate patterns. Here, each point is a review, colored by sentiment. It shows if positive, neutral, and negative reviews form distinct groups.")
             st.plotly_chart(fig, use_container_width=True)
         
+        # k-distance plots
         st.write("")
         st.write("To determine the optimal eps parameter for clustering the samples, we can use the **k-distance grap**, which allows us to find the optimal eps value. A strong increase indicates a suitable eps for well-defined clusters.")
-        
-        
+        # k selection
         _, col2 = st.columns([10, 2])
         with col2:
             filter_k = st.number_input("Choose K", min_value=1, max_value=100, value=10, key="filter_k")
             filter_k = int(filter_k) if filter_k is not None else 10
-                
+
         col1, col2 = st.columns(2)
+        # k-distance PCA
         with col1:
             fig = plots.plotKdistance(embeddings_umap, k= filter_k, method='PCA', app = True)
             st.plotly_chart(fig, use_container_width=True)
+
+        # k-distance UMAP
         with col2:
             fig = plots.plotKdistance(embeddings_pca, k= filter_k, method='UMAP', app = True)
             st.plotly_chart(fig, use_container_width=True)
@@ -572,6 +598,7 @@ if uploaded_file is not None:
         st.write("")
         st.write("Combining PCA or UMAP with DBSCAN helps identify clusters of similar reviews. Each point represents a review, colored by cluster, highlighting specific trends in customer feedback.")
         
+        # eps and min samples selection
         _, col2, col3 = st.columns([4, 2, 2])
         with col2:
             filter_eps = st.number_input("Choose EPS value", min_value=0.1, max_value=5.0, value=0.5, step=0.1, key="filter_eps")
@@ -581,17 +608,21 @@ if uploaded_file is not None:
             filter_min_samples = int(filter_min_samples) if filter_min_samples is not None else 5
         
         col1, col2 = st.columns(2)
+        # dbscan PCA
         with col1:
             pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
             st.plotly_chart(fig, use_container_width=True)
-            
+    
+        # dbscan UMAP
         with col2:
             umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
             st.plotly_chart(fig, use_container_width=True)
         
+        # Topics
         st.markdown("<h4 style='text-align: left ;'> 📚 Extract Topics </h4>", unsafe_allow_html=True)
         st.write("But what are the most important topics in each of our clusters? We can use the extraction of topics from the clusters to see which are the most important terms in our clusters. The terms of each topic have a weight assigned to them according to the information extracted. A higher weight means that the topic has a higher relevance than the rest of the terms in that topic, so we can consider it as one of the most important topics in the grouping of reviews.")
 
+        # Refresh cluster columns with calculated in app
         if 'umap_cluster' in reviews_filtered.columns:
             reviews_filtered.drop(columns='umap_cluster', inplace=True)
         if 'pca_cluster' in reviews_filtered.columns:
@@ -606,13 +637,9 @@ if uploaded_file is not None:
         unique_pca_clusters = set(reviews_filtered['pca_cluster'].dropna().unique())
         unique_umap_clusters = set(reviews_filtered['umap_cluster'].dropna().unique())
 
-        def format_topic_terms(terms):
-            if isinstance(terms, list):
-                return ", ".join([f'{weight}*"{term}"' for weight, term in terms])
-            else:
-                return str(terms) 
-            
+        # Generate and display topics
         col1, col2 = st.columns(2)
+        # PCA topics
         with col1:
             pca_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['pca_cluster'])
             for cluster in unique_pca_clusters:
@@ -623,6 +650,8 @@ if uploaded_file is not None:
                         st.write(f"**Topic {i}:** {topic}")
                 else:
                     st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
+
+        # UMAP topics
         with col2:
             umap_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['umap_cluster'])
             for cluster in unique_umap_clusters:
