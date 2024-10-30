@@ -235,7 +235,10 @@ if uploaded_file is not None:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'> 📋 Status 📋</h2>", unsafe_allow_html=True)
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+        
         # Year Overview
+        st.markdown("<h4 style='text-align: left; color: #00000;'>🗓️ Overview </h4>", unsafe_allow_html=True)
+        st.write("Annual average rating trends over recent years show overall performance. Spot upward or downward shifts and compare average ratings in Food, Service, and Ambient to identify strengths and improvement areas.")
         reviews['year'] = reviews['date'].dt.year
         recent_reviews = reviews[reviews['date'] >= reviews['date'].max() - pd.DateOffset(years=8)]
         yearly_avg_scores = recent_reviews.groupby('year')[label_keys[0]].mean()
@@ -251,21 +254,21 @@ if uploaded_file is not None:
                 hoverinfo="text"
             )
         )
-
         fig.update_layout(
             xaxis=dict(showgrid=False),
             yaxis=dict(showgrid=False, showticklabels=False),
             margin=dict(t=20, b=20),
             height=280
         )
-        st.markdown("<h4 style='text-align: left; color: #00000;'>🗓️ Overview </h4>", unsafe_allow_html=True)
-        st.write("Annual average rating trends over recent years show overall performance. Spot upward or downward shifts and compare average ratings in Food, Service, and Ambient to identify strengths and improvement areas.")
+
         col1, col2 = st.columns([6, 3])
+        # Display yearly scroe
         with col1:
             st.plotly_chart(fig, use_container_width=True)
+        
+        # Display categories
         with col2:
-        # Categories
-            columns = list(label_mapping.keys())[1:]  # Excluye 'rating_score' si no se necesita
+            columns = list(label_mapping.keys())[1:]
             average_scores = [reviews[col].mean() for col in columns]
             colors = ['rgba(31, 119, 180, 0.8)', 'rgba(107, 174, 214, 0.8)', 'rgba(158, 202, 225, 0.8)']
 
@@ -288,20 +291,18 @@ if uploaded_file is not None:
             )
             st.plotly_chart(fig_categories, use_container_width=True, key="fig_categories_tab1")
 
-        # Trend Overview
+        # Trend Monthly Overview
         st.markdown("<h4 style='text-align: left ;'>📝 Monthly Overview</h4>", unsafe_allow_html=True)
         st.write("Provides a more detailed view of average scores for each category throughout the year. It highlights fluctuations over specific months, allowing stakeholders to observe seasonal variations or significant dips and peaks that may need further investigation.")
         recent_reviews = reviews[reviews['date'] >= reviews['date'].max() - pd.DateOffset(years=1)]
         fig_trend = tab_3.plotTrend(recent_reviews, label_mapping, app = True)
         st.plotly_chart(fig_trend, use_container_width=True, key="fig_month_trend_tab1")
 
+        # Recommendations
         st.markdown("<h4 style='text-align: left; color: #000;'>🤩 Recommendations</h4>", unsafe_allow_html=True)
         st.write("Discover the top and least recommended items based on user feedback. Here are the highlights for the most popular and least favored choices from our reviews.")
-
-        # Análisis de recomendaciones
         most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
-
-        # Añadimos estilo CSS para reducir el espacio entre elementos de la lista
+        # CSS style for the list
         st.markdown(
             """
             <style>
@@ -311,33 +312,36 @@ if uploaded_file is not None:
             }
             </style>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
 
-        # Columnas para mostrar las recomendaciones más y menos recomendadas
+        
         col1, col2 = st.columns(2)
-
+        # Most recommended
         with col1:
             st.markdown("<h5 style='text-align: left; color: #000;'>✚ Most Recommended</h5>", unsafe_allow_html=True)
             for item in most_recommended[:5]:
                 st.markdown(f"👌🏽 {item[0]} ({item[1]} times)")
 
+        # Less recommended
         with col2:
             st.markdown("<h5 style='text-align: left; color: #000;'>− Least Recommended</h5>", unsafe_allow_html=True)
             for item in less_recommended[:5]:
                 st.markdown(f"🍽️ {item}")
 
+        # Lasr reviews selection
         st.markdown("<h4 style='text-align: left; color: #00000;'>🚨 Last Reviews</h4>", unsafe_allow_html=True)
         st.write("Selection of recent reviews, separated into the best and worst ratings. Use this feedback to understand current strengths and pinpoint opportunities for improvement.")
         col1, col2 = st.columns(2)
+        # recent_best_reviews
         with col1:
-            # recent_best_reviews
             recent_best_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_best_reviews'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
             recent_best_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
             st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
             st.dataframe(recent_best_reviews, height= 600)
+        
+        # recent_worst_reviews
         with col2:
-            # recent_worst_reviews
             recent_worst_reviews = sample_reviews[sample_reviews['sample_type'] == 'recent_worst_reviews'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
             recent_worst_reviews.rename(columns = {'review':'Review', label_keys[0]:label_mapping[label_keys[0]], additional_label_keys[0]:additional_label_mapping[additional_label_keys[0]],label_keys[1]:label_mapping[label_keys[1]], label_keys[2]:label_mapping[label_keys[2]], label_keys[3]:label_mapping[label_keys[3]], 'date':'Date'}, inplace = True)
             st.markdown("<h5 style='text-align: left;'> 👎  Worst...</h5>", unsafe_allow_html=True)
@@ -350,25 +354,30 @@ if uploaded_file is not None:
         st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
         st.write("These insights summarize key themes and feedback extracted from all user reviews, highlighting strengths, pain points, and areas for improvement.")
         
+        # General Insights
         col1, col2 = st.columns(2)
+        # Strenghts
         with col1:
             st.markdown("<h5 style='text-align: center;'>💪 Strengths!</h5>", unsafe_allow_html=True)
             for insight in general_insights['best']:
                 st.success('👍 ' + insight)
 
+         # Pain points
+        
         with col2:
             st.markdown("<h5 style='text-align: center;'>🤬 Pain Points...</h5>", unsafe_allow_html=True)
             for insight in general_insights['worst']:
                 st.error('👎 ' + insight)
 
         _, col2, _ = st.columns([1, 3, 1])
-
+        # Next steps
         with col2:
             st.markdown("<h4 style='text-align: center;'>💡 Areas for Improvement</h4>", unsafe_allow_html=True)
             for insight in general_insights['improve']:
                 st.warning('⚠️ ' + insight)
 
         st.markdown("<h3 style='text-align: center; color: #00000;'></h3>", unsafe_allow_html=True)
+        
         ## Filters
         col1, col2, col3 = st.columns([6, 2, 2])
         default_start_date = reviews['date'].max() - pd.DateOffset(years=1)
@@ -381,15 +390,18 @@ if uploaded_file is not None:
         sample_reviews_filtered = addFilters(sample_reviews, filter_min_tab2, filter_max_tab2)
         reviews_filtered = addFilters(reviews, filter_min_tab2, filter_max_tab2)
 
+        # Sentiment status plot
         st.markdown("<h4 style='text-align: left; color: #00000;'> 💘 Sentiment</h4>", unsafe_allow_html=True)
         st.write("Monthly evolution of customer feelings over the past year, divided into positive, neutral, and negative categories. It highlights periods of higher satisfaction or concerns, helping to spot trends in customer sentiment.")
         fig = plots.plotSentimentTrend(reviews_filtered, years_limit = 2, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
+        ## Dynamic insights
         st.markdown("<h4 style='text-align: left; color: #00000;'>📢 Customer insights for selected period</h4>", unsafe_allow_html=True)
         st.write("Summarize key themes and feedback extracted from user reviews of the selected period. Highlighting strengths, pain points, and areas for improvement.")
 
         _, col2 = st.columns([6, 2])
+        # Adjust the number of insights extracted
         with col2:
             filter_number_insights = st.number_input("Number of Insights per category", min_value= 2, max_value=5, value=2, key="filter_number_insights")
             filter_number_insights = int(filter_number_insights) if filter_number_insights is not None else 2
@@ -397,7 +409,7 @@ if uploaded_file is not None:
         # Update topics with selected  revuews
         reviews_summary_dict = tab_1.updateTopicsDict(reviews_filtered)
 
-        ## Extract Insights with LLM
+        # Extract Insights with LLM
         client = llm_insights.initChatGPTClient()
 
         # Generate insights
@@ -437,7 +449,7 @@ if uploaded_file is not None:
             for insight in insigths_summary_updated['improve']:
                 st.warning('⚠️ ' + insight)
 
-
+        # Extraction of best and worst reviews
         st.markdown("<h4 style='text-align: left; color: #00000;'>🤓 Reviews Overview</h4>", unsafe_allow_html=True)
         st.write("Here are recent high and low reviews, summarizing both positive feedback and areas for improvement from individual customers. Quick glance at what customers value most and where improvements can be made.")
         col1, col2 = st.columns(2)
@@ -448,6 +460,7 @@ if uploaded_file is not None:
             best_reviews.fillna('', inplace=True)
             st.markdown("<h5 style='text-align: left;'> 👍  Best!</h5>", unsafe_allow_html=True)
             st.dataframe(best_reviews, height=500)
+
         with col2:
             # worst_reviews
             worst_reviews = sample_reviews_filtered[sample_reviews_filtered['sample_type'] == 'worst_reviews_sample'][['date', label_keys[0],'review', label_keys[1], label_keys[2], label_keys[3], additional_label_keys[0]]]
@@ -475,14 +488,13 @@ if uploaded_file is not None:
         # Apply the filter function
         reviews_filtered = addFilters(reviews, filter_min_tab3, filter_max_tab3)
         
-        ## Trend Overview
+        # Trend Overview
         st.markdown("<h4 style='text-align: left ;'>📝 Overview</h4>", unsafe_allow_html=True)
         st.write("Average monthly ratings across different categories. The chart helps pinpoint drops and peaks, providing context for periods with notable fluctuations in customer satisfaction.")
-
         fig = tab_3.plotTrend(reviews_filtered, label_mapping, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
-        ## Problems by period
+        # Problems by period
         st.markdown("<h4 style='text-align: left ;'>🔍 Period details</h4>", unsafe_allow_html=True)
         st.write("Customer feedback for the selected period, including specific problems and actionable improvement suggestions based on customer reviews. It allows a closer look at the challenges during low-rated periods.")
 
@@ -496,6 +508,7 @@ if uploaded_file is not None:
         end_date = pd.to_datetime(filter_max_tab3 if filter_max_tab3 is not None else limit_date)
         worst_periods_insights_filtered = {date: data for date, data in worst_periods_insights.items() if start_date <= datetime.strptime(date, '%Y-%m') <= end_date}
         
+        # Display bad periods by month
         for i, (period, insights) in enumerate(sorted(worst_periods_insights_filtered.items(), key=lambda x: x[0], reverse=True)):
             expanded = True if i == 0 else False
 
