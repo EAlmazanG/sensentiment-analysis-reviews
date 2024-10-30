@@ -16,6 +16,20 @@ processed_data_path = '../data/processed/'
 raw_data_path = '../data/raw/'
 sys.path.append(os.path.abspath(os.path.join('..')))
 
+# Label mapping for interest columns and label name
+label_mapping = {
+    'rating_score': 'Rating',
+    'food_score': 'Food',
+    'service_score': 'Service',
+    'atmosphere_score': 'Ambient'
+}
+
+# Parameters
+number_of_words = 10
+n_grams = 2
+eps = 0.5
+min_samples = 10
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process sentiment analysis.')
     parser.add_argument('--name', type=str, required=True, help='Name of the dataset to process')
@@ -41,13 +55,7 @@ if __name__ == "__main__":
 
     print(reviews[['review', 'cleaned_review']].sample(5))
 
-    # Label mapping for interest columns and label name
-    label_mapping = {
-        'rating_score': 'Rating',
-        'food_score': 'Food',
-        'service_score': 'Service',
-        'atmosphere_score': 'Ambient'
-    }
+
     label_keys = list(label_mapping.keys())
 
     ## Analyze sentiment
@@ -55,15 +63,15 @@ if __name__ == "__main__":
     reviews = ml_processing.analyzeSentiment(reviews)
 
     # Extract common positive and negative phrases
-    common_positive_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'positive', n = 10)
-    common_negative_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'negative', n = 10)
+    common_positive_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'positive', n = number_of_words)
+    common_negative_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'negative', n = number_of_words)
 
     print("Top Positive Words:", common_positive_words)
     print("Top Negative Words:", common_negative_words)
 
     # Extract common positive and negative bigrams
-    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n = 2, top_n=10)
-    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n = 2, top_n=10)
+    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n = n_grams, top_n=number_of_words)
+    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n = n_grams, top_n=number_of_words)
 
     print("Top Positive Bigrams:", common_positive_bigrams)
     print("Top Negative Bigrams:", common_negative_bigrams)
@@ -84,8 +92,8 @@ if __name__ == "__main__":
     embeddings_umap = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot)
 
     # Visualize with DBSCAN clusters
-    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = plot)
-    umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = plot)
+    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=eps, min_samples=min_samples, plot = plot)
+    umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=eps, min_samples=min_samples, plot = plot)
 
     if plot:
         plots.plotCommunities(reviews)
