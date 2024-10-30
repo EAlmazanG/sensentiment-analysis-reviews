@@ -1,5 +1,9 @@
 # Sentiment Analysis and Review Classification Project
 
+
+add img/gif
+
+
 ## Overview
 This project aims to provide a simple, cost-effective solution for small online stores and startups to analyze customer reviews. The main goal is to extract insights from customer feedback that will help these businesses improve their products and services. By using Python tools and machine learning, this project helps to classify customer sentiment (positive, neutral, negative) and presents these insights in an easy-to-read dashboard using Power BI.
 
@@ -11,14 +15,13 @@ Small eCommerce businesses often lack the resources to conduct in-depth analysis
 - **CSV/Google Drive**: Data storage in CSV format, either locally or in Google Drive.
 - **pandas**: Used for cleaning and processing the text data.
 - **scikit-learn**: Implements a simple machine learning model for sentiment analysis.
-- **TBD**: Displays the results in an accessible and interactive dashboard.
+- **streamlit**: Displays the results in an accessible and interactive dashboard.
 
 ## Project Phases
 1. **Data Collection (Scraping)**: Reviews will be collected from online stores using Python's Scrapy framework and stored in CSV format.
-2. **Data Storage**: The raw data will be saved in CSV files locally or in Google Drive.
-3. **Data Cleaning and Processing**: The data will be processed using pandas to clean and prepare it for machine learning analysis.
-4. **Sentiment Analysis (ML Model)**: A machine learning model, implemented in scikit-learn, will classify reviews as positive, neutral, or negative.
-5. **Visualization**: The results of the analysis will be displayed in a Power BI dashboard for easy interpretation and insights.
+2. **Data Storage and Cleaning**: The raw data will be saved in CSV files locally or in Google Drive.
+3. **Data Analysis**: The data will be processed using pandas to clean and prepare it for machine learning analysis.  A machine learning model, implemented in scikit-learn, will classify reviews as positive, neutral, or negative.
+4. **Data Visualization**: The results of the analysis will be displayed with a streamlit app for easy interpretation and insights.
 
 ## Folder Structure
 
@@ -30,22 +33,25 @@ sentiment-analysis-reviews/
 │   └── processed/          # Cleaned and processed data
 │
 ├── notebooks/
-│   └── scraping.ipynb              # Notebook for scrap the data
-│   └── data_cleaning.ipynb         # Notebook for initial data exploration and cleaning
+│   ├── scraping.ipynb              # Notebook for scrap the data
+│   ├── data_cleaning.ipynb         # Notebook for initial data exploration and cleaning
+│   ├── app_dev.ipynb               # 
+│   ├── generate_big_sample.ipynb   # 
 │   └── sentiment_analysis.ipynb    # Notebook for training and testing the ML model
 │
 ├── src/                   
 │   ├── scraper.py          # Script for scrap the data with selenium
 │   ├── cleaning.py         # Script for cleaning the data with pandas
 │   ├── ml_processing.py    # Script with functions to do the sentiment analysis and word processing 
-│   ├── ai_insights.py      # Script with functions to extract the insights using GPT
+│   ├── llm_insights.py     # Script with functions to extract the insights using GPT
 │   ├── plots.py            # Script with plot functions for sentiment analysis
 │   └── sentiment.py        # Script for sentiment analysis and extraction of insights 
 │
 ├── app/               
-│   ├── app.py                 # Script with functions to extract the insights using GPT
-│   ├── .py                 # Script with plot functions for sentiment analysis
-│   └── .py                 # Script for sentiment analysis and extraction of insights 
+│   ├── app.py              # 
+│   ├── header.py           # 
+│   ├── tab_1.py            # 
+│   └── tab_3.py            # 
 │
 ├── requirements.txt        # Dependencies (pandas, scikit-learn, scrapy, etc.)
 ├── environment.yml         # Conda environment configuration
@@ -121,4 +127,3 @@ The script will extract to the processed folder the insights extracted in json f
 - **Community Analysis with TF-IDF**: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
 
 ### Data Visualization
-TBD
