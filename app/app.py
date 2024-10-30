@@ -500,10 +500,50 @@ if uploaded_file is not None:
             st.plotly_chart(fig, use_container_width=True)
         
         st.markdown("<h4 style='text-align: left ;'> 📚 Extract Topics </h4>", unsafe_allow_html=True)
-        st.write("But what are the most important topics in each of our clusters? We can use the extraction of topics from the clusters to see which are the most important terms in our clusters.")
+        st.write("But what are the most important topics in each of our clusters? We can use the extraction of topics from the clusters to see which are the most important terms in our clusters. The terms of each topic have a weight assigned to them according to the information extracted. A higher weight means that the topic has a higher relevance than the rest of the terms in that topic, so we can consider it as one of the most important topics in the grouping of reviews.")
 
+        if 'umap_cluster' in reviews_filtered.columns:
+            reviews_filtered.drop(columns='umap_cluster', inplace=True)
+        if 'pca_cluster' in reviews_filtered.columns:
+            reviews_filtered.drop(columns='pca_cluster', inplace=True)
 
+        reviews_filtered = (
+            reviews_filtered
+            .merge(pca_clusters[['review_id', 'pca_cluster']], on='review_id', how='left')
+            .merge(umap_clusters[['review_id', 'umap_cluster']], on='review_id', how='left')
+        )
 
+        unique_pca_clusters = set(reviews_filtered['pca_cluster'].dropna().unique())
+        unique_umap_clusters = set(reviews_filtered['umap_cluster'].dropna().unique())
+
+        def format_topic_terms(terms):
+            if isinstance(terms, list):
+                return ", ".join([f'{weight}*"{term}"' for weight, term in terms])
+            else:
+                return str(terms) 
+            
+        col1, col2 = st.columns(2)
+        with col1:
+            pca_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['pca_cluster'])
+            for cluster in unique_pca_clusters:
+                st.markdown(f"<h5 style='text-align: center;'>--- pca_cluster = {cluster} ---</h5>", unsafe_allow_html=True)
+                topics = pca_topics['pca_cluster'].get(cluster, None)
+                if topics:
+                    for i, topic in enumerate(topics):
+                        st.write(f"**Topic {i}:** {topic}")
+                else:
+                    st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
+        with col2:
+            umap_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['umap_cluster'])
+            for cluster in unique_umap_clusters:
+                st.markdown(f"<h5 style='text-align: center;'>--- umap_cluster = {cluster} ---</h5>", unsafe_allow_html=True)
+                topics = umap_topics['umap_cluster'].get(cluster, None)
+                
+                if topics:
+                    for i, topic in enumerate(topics):
+                        st.write(f"**Topic {i}:** {topic}")
+                else:
+                    st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
 
 else:
     st.write("Please upload a ML processed CSV file to start.")
