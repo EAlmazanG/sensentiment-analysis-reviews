@@ -35,8 +35,8 @@ sentiment-analysis-reviews/
 ├── notebooks/
 │   ├── scraping.ipynb              # Notebook for scrap the data
 │   ├── data_cleaning.ipynb         # Notebook for initial data exploration and cleaning
-│   ├── app_dev.ipynb               # 
-│   ├── generate_big_sample.ipynb   # 
+│   ├── app_dev.ipynb               # Used to test and dev the parts of the streamlit app
+│   ├── generate_big_sample.ipynb   # Generate a example dataset using yelp dataset as base: https://www.yelp.com/dataset/documentation/main
 │   └── sentiment_analysis.ipynb    # Notebook for training and testing the ML model
 │
 ├── src/                   
@@ -48,10 +48,10 @@ sentiment-analysis-reviews/
 │   └── sentiment.py        # Script for sentiment analysis and extraction of insights 
 │
 ├── app/               
-│   ├── app.py              # 
-│   ├── header.py           # 
-│   ├── tab_1.py            # 
-│   └── tab_3.py            # 
+│   ├── app.py              # Main code of the streamlit app
+│   ├── header.py           # Functions for header
+│   ├── tab_1.py            # Functions for tab 1
+│   └── tab_3.py            # Functions for tab 3
 │
 ├── requirements.txt        # Dependencies (pandas, scikit-learn, scrapy, etc.)
 ├── environment.yml         # Conda environment configuration
