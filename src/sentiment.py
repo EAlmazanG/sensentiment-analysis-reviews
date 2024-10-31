@@ -47,6 +47,7 @@ if __name__ == "__main__":
     print(reviews_pro.sample(5))
 
     reviews = reviews_pro.copy()
+    reviews.reset_index(drop=True, inplace=True)
     resumme = resumme_raw.copy()
 
     ## Cleaning and preprocessing
@@ -95,10 +96,8 @@ if __name__ == "__main__":
     pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, score_column = label_keys[0], eps=eps, min_samples=min_samples, plot = plot)
     umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=eps, min_samples=min_samples, plot = plot)
 
-    if plot:
-        plots.plotCommunities(reviews)
-
     ## Join PCA and UMAP clusters info to reviews
+    reviews = reviews.reset_index().rename(columns={'index':'review_id'})
     reviews = reviews.merge(pca_clusters[['review_id','pca_cluster']]).merge(umap_clusters[['review_id','umap_cluster']])
 
     ## Save processed reviews
