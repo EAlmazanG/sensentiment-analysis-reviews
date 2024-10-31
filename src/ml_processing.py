@@ -223,7 +223,7 @@ def analyzeLowScores(df, score_column = 'rating_score', time_period='month', num
     df['year'] = df['date'].dt.year
 
     # Calculate the mean and standard deviation of the scores
-    last_periods = df[df['date'] >= pd.to_datetime('today') - pd.DateOffset(months=last_periods)]
+    last_periods = df[df['date'] >= df['date'].max() - pd.DateOffset(months=last_periods)]
 
     # Compute averages for the required periods
     last_periods_avg_scores = last_periods.groupby(time_period)[score_column].mean().reset_index()

@@ -1,32 +1,17 @@
 {
-    "2023-10-01": {
-        "problems": [
-            "Customers reported longer wait times than expected.",
-            "The quality of food did not meet customer expectations."
-        ],
-        "improve": [
-            "Implement a more efficient order management system.",
-            "Conduct regular quality checks on food preparation."
-        ]
-    },
-    "2023-10-02": {
-        "problems": [
-            "Staff appeared untrained and unresponsive to requests.",
-            "Ambiance was deemed too loud for a comfortable dining experience."
-        ],
-        "improve": [
-            "Offer staff training sessions focused on customer service skills.",
-            "Consider soundproofing options or music volume controls."
-        ]
-    },
-    "2023-10-03": {
-        "problems": [
-            "Inconsistent food quality was noted across different visits.",
-            "Billing errors caused frustration among customers."
-        ],
-        "improve": [
-            "Standardize recipes to ensure consistent food quality.",
-            "Enhance the billing process to eliminate errors and delays."
-        ]
-    }
+    "best": [
+        "The quality of the food received positive remarks from customers.",
+        "Customers appreciated the overall experience and noted it was enjoyable.",
+        "Service was highlighted as a strong point, with many reviews reflecting satisfaction."
+    ],
+    "worst": [
+        "Several customers reported dissatisfaction with the food's quality at times.",
+        "There were complaints about the inconsistencies in service during peak hours.",
+        "Some reviews mentioned that certain dishes did not meet expectations."
+    ],
+    "improve": [
+        "Focus on maintaining consistent food quality to enhance customer satisfaction.",
+        "Provide additional training for staff to manage service better during busy times.",
+        "Regularly review and update the menu to ensure all dishes meet customer expectations."
+    ]
 }

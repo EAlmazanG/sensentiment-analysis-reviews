@@ -1,0 +1,32 @@
+{
+    "2021-03": {
+        "problems": [
+            "Customers felt that the service did not meet their expectations.",
+            "The atmosphere was described as lacking warmth."
+        ],
+        "improve": [
+            "Enhance the quality of service training for staff.",
+            "Create a welcoming ambiance through decor and lighting."
+        ]
+    },
+    "2021-10": {
+        "problems": [
+            "The quality of food did not meet customer expectations.",
+            "Service consistency was an issue, leading to customer dissatisfaction."
+        ],
+        "improve": [
+            "Focus on improving food preparation methods and ingredient quality.",
+            "Ensure staff are well-trained and provide consistent service."
+        ]
+    },
+    "2021-11": {
+        "problems": [
+            "There were complaints regarding the freshness of the seafood.",
+            "Customer feedback noted that the food was not served at the right temperature."
+        ],
+        "improve": [
+            "Implement stricter quality control measures for seafood.",
+            "Revise kitchen processes to ensure food is served at optimal temperatures."
+        ]
+    }
+}
