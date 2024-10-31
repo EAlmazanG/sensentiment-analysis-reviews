@@ -169,3 +169,5 @@ data/raw/yelp_academic_dataset_business.json
 data/raw/yelp_academic_dataset_review.json
 data/processed/Oceana Grill_ml_processed_reviews.csv
 data/processed/Oceana Grill_sample_selected_reviews.csv
+data/processed/Oceana Grill_ml_processed_reviews.csv
+data/processed/Oceana Grill_sample_selected_reviews.csv
