@@ -563,7 +563,7 @@ if uploaded_file is not None:
         # Communities
         st.markdown("<h4 style='text-align: left ;'>🫂 Sentence Communities</h4>", unsafe_allow_html=True)
         st.write("Shows how phrases in reviews group into communities based on meaning. By converting phrases into vectors, we can identify common themes, providing insights into recurring opinions about the venue.")
-        fig = plots.plotCommunities(reviews_filtered, app = True)
+        fig = plots.plotCommunities(reviews_filtered.sample(1000), app = True)
         st.plotly_chart(fig, use_container_width=True)
 
         # Dimensional reduction and clustering
