@@ -165,7 +165,7 @@ def plotSentimentTrend(df, years_limit = 2, app = False):
     df = df.dropna(subset=['date'])
     
     # Filter only the last 6 years
-    last_six_years = datetime.datetime.now() - pd.DateOffset(years=years_limit)
+    last_six_years = df['date'].max() - pd.DateOffset(years=years_limit)
     df = df[df['date'] >= last_six_years]
 
     # Set date as index for resampling

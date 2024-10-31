@@ -116,7 +116,9 @@ def analyzeRecommendations(df):
 
     # Count the frequency of each dish
     dish_counts = Counter(all_dishes)
-
+    if not dish_counts:
+        return [], []
+    
     # Most and least recommended dishes
     most_common_dishes = dish_counts.most_common(3)
     min_count = min(dish_counts.values())

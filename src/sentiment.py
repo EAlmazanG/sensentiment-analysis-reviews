@@ -79,9 +79,9 @@ if __name__ == "__main__":
     if plot:
         plots.plotSentimentTrend(reviews, years_limit=2)
 
-    most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
-    print("Top Most Recommended:", most_recommended)
-    print("Least Recommended :", less_recommended)
+    #most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
+    #print("Top Most Recommended:", most_recommended)
+    #print("Least Recommended :", less_recommended)
 
     ## Calculate embeddings
     tqdm.pandas(desc="Generating Embeddings")
