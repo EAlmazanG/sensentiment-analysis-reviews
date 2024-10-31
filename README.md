@@ -127,3 +127,21 @@ The script will extract to the processed folder the insights extracted in json f
 - **Community Analysis with TF-IDF**: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
 
 ### Data Visualization
+
+To display the extracted insights, I have developed an **interactive Streamlit application** that generates an insightful dashboard. This app allows you to load the processed data and visualize it through user-friendly metrics and graphs. Below is the setup for running the Streamlit application.
+
+1. **App Structure**: The Streamlit app contains a header with key metrics and four main tabs:
+   - **📋 Status**: General summary with trends and recommendations.
+   - **📢 Customer Insights**: Detailed analysis of strengths, weaknesses, and areas for improvement.
+   - **🕵🏻‍♂️ Bad Times Deep Dive**: Analysis of periods with low scores.
+   - **🧪 ML Lab**: Space for exploring and experimenting with machine learning techniques on the data.
+
+2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
+
+```bash
+streamlit run app/app.py
+```
+
+3. **Data Loading**: The app allows you to upload the generated **ML file** (processed using `sentiment.py`) to visualize insights. Only this primary file needs to be uploaded; all other necessary files will load automatically. The ML file contains processed reviews data, which is crucial for exploring key metrics, sentiment insights, trends, and advanced machine learning analysis across different tabs.
+
+4. **Interactivity**: The tool offers various filters to customize the data view based on desired information. Additionally, users can dynamically extract insights from selected periods by connecting to the **GPT API** for advanced feedback analysis. In the **ML Lab** tab, several machine learning parameters can be adjusted, allowing users to experiment with the analysis settings and "play" with the results to gain deeper insights or identify patterns.
