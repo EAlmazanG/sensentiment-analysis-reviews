@@ -297,35 +297,37 @@ if uploaded_file is not None:
         fig_trend = tab_3.plotTrend(recent_reviews, label_mapping, app = True)
         st.plotly_chart(fig_trend, use_container_width=True, key="fig_month_trend_tab1")
 
-        # Recommendations
-        st.markdown("<h4 style='text-align: left; color: #000;'>🤩 Recommendations</h4>", unsafe_allow_html=True)
-        st.write("Discover the top and least recommended items based on user feedback. Here are the highlights for the most popular and least favored choices from our reviews.")
         most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
-        # CSS style for the list
-        st.markdown(
-            """
-            <style>
-            ul {
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
+        if len(most_recommended) > 0 and len(less_recommended) > 0:
+            # Recommendations
+            st.markdown("<h4 style='text-align: left; color: #000;'>🤩 Recommendations</h4>", unsafe_allow_html=True)
+            st.write("Discover the top and least recommended items based on user feedback. Here are the highlights for the most popular and least favored choices from our reviews.")
+            
+            # CSS style for the list
+            st.markdown(
+                """
+                <style>
+                ul {
+                    margin-top: 0;
+                    margin-bottom: 0;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
 
-        col1, col2 = st.columns(2)
-        # Most recommended
-        with col1:
-            st.markdown("<h5 style='text-align: left; color: #000;'>✚ Most Recommended</h5>", unsafe_allow_html=True)
-            for item in most_recommended[:5]:
-                st.markdown(f"👌🏽 {item[0]} ({item[1]} times)")
+            col1, col2 = st.columns(2)
+            # Most recommended
+            with col1:
+                st.markdown("<h5 style='text-align: left; color: #000;'>✚ Most Recommended</h5>", unsafe_allow_html=True)
+                for item in most_recommended[:5]:
+                    st.markdown(f"👌🏽 {item[0]} ({item[1]} times)")
 
-        # Less recommended
-        with col2:
-            st.markdown("<h5 style='text-align: left; color: #000;'>− Least Recommended</h5>", unsafe_allow_html=True)
-            for item in less_recommended[:5]:
-                st.markdown(f"🍽️ {item}")
+            # Less recommended
+            with col2:
+                st.markdown("<h5 style='text-align: left; color: #000;'>− Least Recommended</h5>", unsafe_allow_html=True)
+                for item in less_recommended[:5]:
+                    st.markdown(f"🍽️ {item}")
 
         # Lasr reviews selection
         st.markdown("<h4 style='text-align: left; color: #00000;'>🚨 Last Reviews</h4>", unsafe_allow_html=True)
@@ -563,7 +565,12 @@ if uploaded_file is not None:
         # Communities
         st.markdown("<h4 style='text-align: left ;'>🫂 Sentence Communities</h4>", unsafe_allow_html=True)
         st.write("Shows how phrases in reviews group into communities based on meaning. By converting phrases into vectors, we can identify common themes, providing insights into recurring opinions about the venue.")
-        fig = plots.plotCommunities(reviews_filtered, app = True)
+        print(reviews_filtered)
+        if reviews_filtered.shape[0] > 200:
+            plot_sample_reviews_filtered = reviews_filtered.sample(200).reset_index(drop=True)
+        else:
+            plot_sample_reviews_filtered = reviews_filtered.copy()
+        fig = plots.plotCommunities(plot_sample_reviews_filtered, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
         # Dimensional reduction and clustering

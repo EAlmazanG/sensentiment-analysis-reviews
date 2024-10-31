@@ -1,17 +1,17 @@
 {
     "best": [
-        "The quality of the food received positive remarks from customers.",
-        "Customers appreciated the overall experience and noted it was enjoyable.",
-        "Service was highlighted as a strong point, with many reviews reflecting satisfaction."
+        "The food was often highlighted as great and enjoyable.",
+        "Customers expressed satisfaction with breakfast options, particularly the variety.",
+        "Service was acknowledged positively, with many appreciating the attentiveness of staff."
     ],
     "worst": [
-        "Several customers reported dissatisfaction with the food's quality at times.",
-        "There were complaints about the inconsistencies in service during peak hours.",
-        "Some reviews mentioned that certain dishes did not meet expectations."
+        "Some patrons experienced dissatisfaction with the food quality, citing it as uneven.",
+        "A few reviews mentioned issues with the dining environment, indicating it felt cramped.",
+        "Customers found the wait times to be longer than expected, leading to frustration."
     ],
     "improve": [
-        "Focus on maintaining consistent food quality to enhance customer satisfaction.",
-        "Provide additional training for staff to manage service better during busy times.",
-        "Regularly review and update the menu to ensure all dishes meet customer expectations."
+        "Enhance the consistency of food quality to ensure all dishes meet customer expectations.",
+        "Consider redesigning the dining space to improve comfort and reduce crowding.",
+        "Implement strategies to streamline service and reduce wait times for a better dining experience."
     ]
 }
