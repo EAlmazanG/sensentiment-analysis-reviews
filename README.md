@@ -1,7 +1,7 @@
 # Sentiment Analysis and Review Classification Project
 
 
-add img/gif
+![Preview of the dashboard](img/sar_tab1.gif)
 
 
 ## Overview
