@@ -5,7 +5,7 @@ add img/gif
 
 
 ## Overview
-This project aims to provide a simple, cost-effective solution for small online stores and startups to analyze customer reviews. The main goal is to extract insights from customer feedback that will help these businesses improve their products and services. By using Python tools and machine learning, this project helps to classify customer sentiment (positive, neutral, negative) and presents these insights in an easy-to-read dashboard using Power BI.
+This project aims to provide a simple, cost-effective solution for small online stores and startups to analyze customer reviews. The main goal is to extract insights from customer feedback that will help these businesses improve their products and services. By using Python tools and machine learning, this project helps to classify customer sentiment (positive, neutral, negative) and presents these insights in an easy-to-read dashboard using Streamlit.
 
 ## Problem Statement
 Small commerce businesses often lack the resources to conduct in-depth analysis of customer reviews. Understanding customer satisfaction through reviews can be crucial for product and service improvements. This project addresses this need by delivering a solution that is both accessible and scalable, allowing small businesses to efficiently analyze customer sentiment without the need for extensive technical knowledge or expensive tools.
@@ -18,8 +18,8 @@ Small commerce businesses often lack the resources to conduct in-depth analysis 
 - **streamlit**: Displays the results in an accessible and interactive dashboard.
 
 ## Project Phases
-1. **Data Collection (Scraping)**: Reviews will be collected from online stores using Python's Scrapy framework and stored in CSV format.
-2. **Data Storage and Cleaning**: The raw data will be saved in CSV files locally or in Google Drive.
+1. **Data Collection (raw and with Scraping)**: Reviews will be collected from online stores using Python's Scrapy framework and stored in CSV format.
+2. **Data Cleaning**: The raw data will be saved in CSV files locally or in Google Drive.
 3. **Data Analysis**: The data will be processed using pandas to clean and prepare it for machine learning analysis.  A machine learning model, implemented in scikit-learn, will classify reviews as positive, neutral, or negative.
 4. **Data Visualization**: The results of the analysis will be displayed with a streamlit app for easy interpretation and insights.
 
@@ -128,6 +128,37 @@ The script will extract to the processed folder the insights extracted in json f
 - **Low-Score Period Analysis**: The notebook specifically extracts reviews from periods with lower overall scores to analyze negative trends, helping to identify areas for improvement in customer experience.
 - **Topic Extraction with LDA**: Latent Dirichlet Allocation (LDA) is used to uncover the main topics in the reviews, providing a clearer picture of what customers frequently discuss, both positively and negatively.
 - **Community Analysis with TF-IDF**: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
+- **LLMs for Insight Generation**: Large Language Models (LLMs) are utilized to generate in-depth insights based on customer reviews, providing an advanced layer of interpretation for patterns and sentiments within the data.
+
+#### Using the GPT API
+
+The **GPT API** is integrated into this project to enable advanced text analysis and feedback extraction, enhancing the quality of insights derived from customer reviews. This API allows the application to generate nuanced feedback by identifying patterns and sentiments not easily captured by traditional methods.
+
+#### Purpose of the GPT API
+The API is used in the **Customer Insights** and **ML Lab** tabs to:
+- **Analyze specific customer feedback trends** based on the time period selected by the user.
+- **Provide detailed insights** into recurring customer themes, both positive and negative, that might otherwise be missed in the standard analysis.
+
+#### Setup Instructions
+1. **API Key**: To enable the GPT functionality, you'll need an API key from OpenAI. If you haven’t done so already, sign up for an API key at [OpenAI's website](https://platform.openai.com/signup).
+   
+2. **Configuration File**: In the project’s root directory, create or locate the `openai_setup.py` file. Replace the placeholders with your OpenAI credentials as shown below:
+
+```python
+   conf = {
+       'organization': 'your_organization_key_here',
+       'project': 'your_project_key_here',
+       'key': 'your_openai_api_key_here'
+   }
+```
+
+**Important**: Ensure that openai_setup.py is included in your .gitignore file to keep your API key secure and prevent accidental exposure in public repositories.
+
+3. **Activating GPT Analysis:** Once configured, the GPT-based analysis will automatically activate in relevant tabs of the Streamlit app. No further setup is needed on the user's end; simply explore the insights in each tab.
+
+**Usage Notes**
+- **Data Privacy:** Be mindful that enabling the GPT API may send review text to OpenAI’s servers. Consider reviewing OpenAI’s data usage policy to understand how your data is handled.
+- **API Costs:** Since the GPT API is a paid service, usage may incur costs. Track your usage on the OpenAI dashboard to manage API expenses.
 
 ### Data Visualization
 
@@ -139,8 +170,7 @@ To display the extracted insights, I have developed an **interactive Streamlit a
    - **🕵🏻‍♂️ Bad Times Deep Dive**: Analysis of periods with low scores.
    - **🧪 ML Lab**: Space for exploring and experimenting with machine learning techniques on the data.
 
-> **‼️👀🚨 Disclaimer 🚨👀‼️**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
-
+> **‼️👀🚨 IMPORTANT 🚨👀‼️**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
 
 2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
 
