@@ -65,7 +65,10 @@ sentiment-analysis-reviews/
 ## Phases of the project
 ### Data Collection
 
-After setting up the project and understanding the folder structure, here's a step-by-step guide to using the `scraper.py` script to extract raw review data from Google Maps.
+After setting up the project and understanding the folder structure, here’s a guide on collecting review data, either by using any data source you prefer (as long as you adapt it to the required format) or by extracting it directly from Google Maps using the scraper.py script.
+
+#### Data Source Options
+You can use any source of review data that suits your needs. Ensure that the data is formatted consistently with the structure expected in the project for smooth integration and analysis. If you need raw review data directly from Google Maps, follow the steps below:
 
 #### 1. **Run `scraper.py` to Extract Raw Data**
 To start scraping data from a Google Maps page, you need to run the `scraper.py` script. The script takes two required arguments:
@@ -136,7 +139,7 @@ To display the extracted insights, I have developed an **interactive Streamlit a
    - **🕵🏻‍♂️ Bad Times Deep Dive**: Analysis of periods with low scores.
    - **🧪 ML Lab**: Space for exploring and experimenting with machine learning techniques on the data.
 
-> **Disclaimer**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
+> **‼️👀🚨 Disclaimer 🚨👀‼️**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
 
 
 2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
