@@ -132,6 +132,11 @@ st.set_page_config(
 )
 
 # File uploader for CSV selection and all the necesary data
+show_ml_lab_tab = st.sidebar.toggle(
+    "Activate ML Lab Tab", 
+    value=False, 
+    help="Shows the ML processing details tab to adjust settings and see impact. Note: This may slow down dashboard performance."
+)
 st.sidebar.header("Select CSV File")
 uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
 
@@ -227,7 +232,10 @@ if uploaded_file is not None:
             st.plotly_chart(fig_bar, use_container_width=True)
 
     ## Tabs
-    tab1, tab2, tab3, tab4 = st.tabs([" 📋 Status ", " 📢 Customer Insigths ", " 🕵🏻‍♂️ Bad times Deep Dive ", " 🧪 ML Lab "])
+    if show_ml_lab_tab:
+        tab1, tab2, tab3, tab4 = st.tabs([" 📋 Status ", " 📢 Customer Insigths ", " 🕵🏻‍♂️ Bad times Deep Dive ", " 🧪 ML Lab "])
+    else:
+        tab1, tab2, tab3 = st.tabs([" 📋 Status ", " 📢 Customer Insigths ", " 🕵🏻‍♂️ Bad times Deep Dive "])
 
     # Status tab
     with tab1:
@@ -532,155 +540,156 @@ if uploaded_file is not None:
                 if period_reviews.shape[0] > 0:
                     st.dataframe(period_reviews, height = 150)
 
+    if show_ml_lab_tab:
     # ML Lab tab
-    with tab4:
-        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center; color: #00000;'>🧪 ML Lab 🧪</h2>", unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
-        st.write("""
-        Do you have ML knowledge and want to play with algorithm parameters?  
-        This advanced tab gives you a peek into the ML processes behind our insights. Here, you can experiment with:
+        with tab4:
+            st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center; color: #00000;'>🧪 ML Lab 🧪</h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center; color: #00000;'></h2>", unsafe_allow_html=True)
+            st.write("""
+            Do you have ML knowledge and want to play with algorithm parameters?  
+            This advanced tab gives you a peek into the ML processes behind our insights. Here, you can experiment with:
 
-        - **Sentence Communities:** See how reviews cluster around common themes.
-        - **Dimensional Reduction (PCA & UMAP):** Adjust settings to visualize review patterns in scores or sentiment.
-        - **k-Distance Graphs:** Find the best `eps` for DBSCAN clustering by tweaking distances.
-        - **Clustering (DBSCAN with PCA & UMAP):** Explore how different settings group similar reviews.
+            - **Sentence Communities:** See how reviews cluster around common themes.
+            - **Dimensional Reduction (PCA & UMAP):** Adjust settings to visualize review patterns in scores or sentiment.
+            - **k-Distance Graphs:** Find the best `eps` for DBSCAN clustering by tweaking distances.
+            - **Clustering (DBSCAN with PCA & UMAP):** Explore how different settings group similar reviews.
 
-        Dive in to understand how we extract meaningful insights from customer feedback!
-        """)
+            Dive in to understand how we extract meaningful insights from customer feedback!
+            """)
 
-        ## Filters
-        col1, col2, col3 = st.columns([6, 2, 2])
-        default_start_date = reviews['date'].max() - pd.DateOffset(years=1)
-        default_end_date = reviews['date'].max()
-        with col2:
-            filter_min_ml = st.date_input("Start Date", default_start_date, key="filter_min_ml")
-        with col3:
-            filter_max_ml = st.date_input("End Date", default_end_date, key="filter_max_ml")
+            ## Filters
+            col1, col2, col3 = st.columns([6, 2, 2])
+            default_start_date = reviews['date'].max() - pd.DateOffset(years=1)
+            default_end_date = reviews['date'].max()
+            with col2:
+                filter_min_ml = st.date_input("Start Date", default_start_date, key="filter_min_ml")
+            with col3:
+                filter_max_ml = st.date_input("End Date", default_end_date, key="filter_max_ml")
 
-        # Apply the filter function
-        reviews_filtered = addFilters(reviews, filter_min_ml, filter_max_ml)
+            # Apply the filter function
+            reviews_filtered = addFilters(reviews, filter_min_ml, filter_max_ml)
 
-        ## Plots
-        # Communities
-        st.markdown("<h4 style='text-align: left ;'>🫂 Sentence Communities</h4>", unsafe_allow_html=True)
-        st.write("Shows how phrases in reviews group into communities based on meaning. By converting phrases into vectors, we can identify common themes, providing insights into recurring opinions about the venue.")
-        print(reviews_filtered)
-        if reviews_filtered.shape[0] > 200:
-            plot_sample_reviews_filtered = reviews_filtered.sample(200).reset_index(drop=True)
-        else:
-            plot_sample_reviews_filtered = reviews_filtered.copy()
-        fig = plots.plotCommunities(plot_sample_reviews_filtered, app = True)
-        st.plotly_chart(fig, use_container_width=True)
-
-        # Dimensional reduction and clustering
-        st.markdown("<h4 style='text-align: left ;'>🧩 Dimensional reduction and clustering</h4>", unsafe_allow_html=True)
-        st.write("To simplify analysis, we use dimensionality reduction techniques like PCA and UMAP. These help display complex data patterns in 2D, revealing trends related to review scores or sentiment.")
-        st.write("")
-
-        col1, col2 = st.columns(2)
-        # PCA
-        with col1:
-            embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews_filtered, score_column = label_keys[0], plot = False, app = True)
-            st.markdown("<h3 style='text-align: center ;'>⚙️ PCA</h3>", unsafe_allow_html=True)
-            st.write("PCA projects reviews into a lower-dimensional space, retaining the most variance. Each point represents a review, colored by its rating. This visualization helps identify any clustering based on review scores.")
+            ## Plots
+            # Communities
+            st.markdown("<h4 style='text-align: left ;'>🫂 Sentence Communities</h4>", unsafe_allow_html=True)
+            st.write("Shows how phrases in reviews group into communities based on meaning. By converting phrases into vectors, we can identify common themes, providing insights into recurring opinions about the venue.")
+            print(reviews_filtered)
+            if reviews_filtered.shape[0] > 200:
+                plot_sample_reviews_filtered = reviews_filtered.sample(200).reset_index(drop=True)
+            else:
+                plot_sample_reviews_filtered = reviews_filtered.copy()
+            fig = plots.plotCommunities(plot_sample_reviews_filtered, app = True)
             st.plotly_chart(fig, use_container_width=True)
+
+            # Dimensional reduction and clustering
+            st.markdown("<h4 style='text-align: left ;'>🧩 Dimensional reduction and clustering</h4>", unsafe_allow_html=True)
+            st.write("To simplify analysis, we use dimensionality reduction techniques like PCA and UMAP. These help display complex data patterns in 2D, revealing trends related to review scores or sentiment.")
+            st.write("")
+
+            col1, col2 = st.columns(2)
+            # PCA
+            with col1:
+                embeddings_pca, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews_filtered, score_column = label_keys[0], plot = False, app = True)
+                st.markdown("<h3 style='text-align: center ;'>⚙️ PCA</h3>", unsafe_allow_html=True)
+                st.write("PCA projects reviews into a lower-dimensional space, retaining the most variance. Each point represents a review, colored by its rating. This visualization helps identify any clustering based on review scores.")
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # UMAP
+            with col2:
+                embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews_filtered, plot = False, app = True)
+                st.markdown("<h3 style='text-align: center ;'>⚙️ UMAP</h3>", unsafe_allow_html=True)
+                st.write("UMAP preserves local structure, useful for detecting intricate patterns. Here, each point is a review, colored by sentiment. It shows if positive, neutral, and negative reviews form distinct groups.")
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # k-distance plots
+            st.write("")
+            st.write("To determine the optimal eps parameter for clustering the samples, we can use the **k-distance grap**, which allows us to find the optimal eps value. A strong increase indicates a suitable eps for well-defined clusters.")
+            # k selection
+            _, col2 = st.columns([10, 2])
+            with col2:
+                filter_k = st.number_input("Choose K", min_value=1, max_value=100, value=10, key="filter_k")
+                filter_k = int(filter_k) if filter_k is not None else 10
+
+            col1, col2 = st.columns(2)
+            # k-distance PCA
+            with col1:
+                fig = plots.plotKdistance(embeddings_umap, k= filter_k, method='PCA', app = True)
+                st.plotly_chart(fig, use_container_width=True)
+
+            # k-distance UMAP
+            with col2:
+                fig = plots.plotKdistance(embeddings_pca, k= filter_k, method='UMAP', app = True)
+                st.plotly_chart(fig, use_container_width=True)
+
+            st.write("")
+            st.write("Combining PCA or UMAP with DBSCAN helps identify clusters of similar reviews. Each point represents a review, colored by cluster, highlighting specific trends in customer feedback.")
+            
+            # eps and min samples selection
+            _, col2, col3 = st.columns([4, 2, 2])
+            with col2:
+                filter_eps = st.number_input("Choose EPS value", min_value=0.1, max_value=5.0, value=0.5, step=0.1, key="filter_eps")
+                filter_eps = float(filter_eps) if filter_eps is not None else 0.5
+            with col3:
+                filter_min_samples = st.number_input("Choose minimum samples", min_value=2, max_value=20, value=5, step=1, key="filter_min_samples")
+                filter_min_samples = int(filter_min_samples) if filter_min_samples is not None else 5
+            
+            col1, col2 = st.columns(2)
+            # dbscan PCA
+            with col1:
+                pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews_filtered, score_column = label_keys[0], eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
+                st.plotly_chart(fig, use_container_width=True)
         
-        # UMAP
-        with col2:
-            embeddings_umap, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews_filtered, plot = False, app = True)
-            st.markdown("<h3 style='text-align: center ;'>⚙️ UMAP</h3>", unsafe_allow_html=True)
-            st.write("UMAP preserves local structure, useful for detecting intricate patterns. Here, each point is a review, colored by sentiment. It shows if positive, neutral, and negative reviews form distinct groups.")
-            st.plotly_chart(fig, use_container_width=True)
-        
-        # k-distance plots
-        st.write("")
-        st.write("To determine the optimal eps parameter for clustering the samples, we can use the **k-distance grap**, which allows us to find the optimal eps value. A strong increase indicates a suitable eps for well-defined clusters.")
-        # k selection
-        _, col2 = st.columns([10, 2])
-        with col2:
-            filter_k = st.number_input("Choose K", min_value=1, max_value=100, value=10, key="filter_k")
-            filter_k = int(filter_k) if filter_k is not None else 10
+            # dbscan UMAP
+            with col2:
+                umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Topics
+            st.markdown("<h4 style='text-align: left ;'> 📚 Extract Topics </h4>", unsafe_allow_html=True)
+            st.write("But what are the most important topics in each of our clusters? We can use the extraction of topics from the clusters to see which are the most important terms in our clusters. The terms of each topic have a weight assigned to them according to the information extracted. A higher weight means that the topic has a higher relevance than the rest of the terms in that topic, so we can consider it as one of the most important topics in the grouping of reviews.")
 
-        col1, col2 = st.columns(2)
-        # k-distance PCA
-        with col1:
-            fig = plots.plotKdistance(embeddings_umap, k= filter_k, method='PCA', app = True)
-            st.plotly_chart(fig, use_container_width=True)
+            # Refresh cluster columns with calculated in app
+            if 'umap_cluster' in reviews_filtered.columns:
+                reviews_filtered.drop(columns='umap_cluster', inplace=True)
+            if 'pca_cluster' in reviews_filtered.columns:
+                reviews_filtered.drop(columns='pca_cluster', inplace=True)
 
-        # k-distance UMAP
-        with col2:
-            fig = plots.plotKdistance(embeddings_pca, k= filter_k, method='UMAP', app = True)
-            st.plotly_chart(fig, use_container_width=True)
+            reviews_filtered = (
+                reviews_filtered
+                .merge(pca_clusters[['review_id', 'pca_cluster']], on='review_id', how='left')
+                .merge(umap_clusters[['review_id', 'umap_cluster']], on='review_id', how='left')
+            )
 
-        st.write("")
-        st.write("Combining PCA or UMAP with DBSCAN helps identify clusters of similar reviews. Each point represents a review, colored by cluster, highlighting specific trends in customer feedback.")
-        
-        # eps and min samples selection
-        _, col2, col3 = st.columns([4, 2, 2])
-        with col2:
-            filter_eps = st.number_input("Choose EPS value", min_value=0.1, max_value=5.0, value=0.5, step=0.1, key="filter_eps")
-            filter_eps = float(filter_eps) if filter_eps is not None else 0.5
-        with col3:
-            filter_min_samples = st.number_input("Choose minimum samples", min_value=2, max_value=20, value=5, step=1, key="filter_min_samples")
-            filter_min_samples = int(filter_min_samples) if filter_min_samples is not None else 5
-        
-        col1, col2 = st.columns(2)
-        # dbscan PCA
-        with col1:
-            pca_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews_filtered, score_column = label_keys[0], eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
-            st.plotly_chart(fig, use_container_width=True)
-    
-        # dbscan UMAP
-        with col2:
-            umap_clusters, fig = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews_filtered, eps=filter_eps, min_samples=filter_min_samples, plot = False, app = True)
-            st.plotly_chart(fig, use_container_width=True)
-        
-        # Topics
-        st.markdown("<h4 style='text-align: left ;'> 📚 Extract Topics </h4>", unsafe_allow_html=True)
-        st.write("But what are the most important topics in each of our clusters? We can use the extraction of topics from the clusters to see which are the most important terms in our clusters. The terms of each topic have a weight assigned to them according to the information extracted. A higher weight means that the topic has a higher relevance than the rest of the terms in that topic, so we can consider it as one of the most important topics in the grouping of reviews.")
+            unique_pca_clusters = set(reviews_filtered['pca_cluster'].dropna().unique())
+            unique_umap_clusters = set(reviews_filtered['umap_cluster'].dropna().unique())
 
-        # Refresh cluster columns with calculated in app
-        if 'umap_cluster' in reviews_filtered.columns:
-            reviews_filtered.drop(columns='umap_cluster', inplace=True)
-        if 'pca_cluster' in reviews_filtered.columns:
-            reviews_filtered.drop(columns='pca_cluster', inplace=True)
+            # Generate and display topics
+            col1, col2 = st.columns(2)
+            # PCA topics
+            with col1:
+                pca_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['pca_cluster'])
+                for cluster in unique_pca_clusters:
+                    st.markdown(f"<h5 style='text-align: center;'>--- pca_cluster = {cluster} ---</h5>", unsafe_allow_html=True)
+                    topics = pca_topics['pca_cluster'].get(cluster, None)
+                    if topics:
+                        for i, topic in enumerate(topics):
+                            st.write(f"**Topic {i}:** {topic}")
+                    else:
+                        st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
 
-        reviews_filtered = (
-            reviews_filtered
-            .merge(pca_clusters[['review_id', 'pca_cluster']], on='review_id', how='left')
-            .merge(umap_clusters[['review_id', 'umap_cluster']], on='review_id', how='left')
-        )
-
-        unique_pca_clusters = set(reviews_filtered['pca_cluster'].dropna().unique())
-        unique_umap_clusters = set(reviews_filtered['umap_cluster'].dropna().unique())
-
-        # Generate and display topics
-        col1, col2 = st.columns(2)
-        # PCA topics
-        with col1:
-            pca_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['pca_cluster'])
-            for cluster in unique_pca_clusters:
-                st.markdown(f"<h5 style='text-align: center;'>--- pca_cluster = {cluster} ---</h5>", unsafe_allow_html=True)
-                topics = pca_topics['pca_cluster'].get(cluster, None)
-                if topics:
-                    for i, topic in enumerate(topics):
-                        st.write(f"**Topic {i}:** {topic}")
-                else:
-                    st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
-
-        # UMAP topics
-        with col2:
-            umap_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['umap_cluster'])
-            for cluster in unique_umap_clusters:
-                st.markdown(f"<h5 style='text-align: center;'>--- umap_cluster = {cluster} ---</h5>", unsafe_allow_html=True)
-                topics = umap_topics['umap_cluster'].get(cluster, None)
-                
-                if topics:
-                    for i, topic in enumerate(topics):
-                        st.write(f"**Topic {i}:** {topic}")
-                else:
-                    st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
+            # UMAP topics
+            with col2:
+                umap_topics = ml_processing.generateTopicsbyColumn(reviews_filtered, ['umap_cluster'])
+                for cluster in unique_umap_clusters:
+                    st.markdown(f"<h5 style='text-align: center;'>--- umap_cluster = {cluster} ---</h5>", unsafe_allow_html=True)
+                    topics = umap_topics['umap_cluster'].get(cluster, None)
+                    
+                    if topics:
+                        for i, topic in enumerate(topics):
+                            st.write(f"**Topic {i}:** {topic}")
+                    else:
+                        st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
 
 else:
     st.write("Please upload a ML processed CSV file to start.")
