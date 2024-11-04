@@ -9,12 +9,26 @@ from tqdm import tqdm
 
 import ml_processing
 import plots
-import ai_insights
+import llm_insights
 
 ## Load the processed and cleaned data
 processed_data_path = '../data/processed/'
 raw_data_path = '../data/raw/'
 sys.path.append(os.path.abspath(os.path.join('..')))
+
+# Label mapping for interest columns and label name
+label_mapping = {
+    'rating_score': 'Rating',
+    'food_score': 'Food',
+    'service_score': 'Service',
+    'atmosphere_score': 'Ambient'
+}
+
+# Parameters
+number_of_words = 10
+n_grams = 2
+eps = 0.5
+min_samples = 10
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process sentiment analysis.')
@@ -33,6 +47,7 @@ if __name__ == "__main__":
     print(reviews_pro.sample(5))
 
     reviews = reviews_pro.copy()
+    reviews.reset_index(drop=True, inplace=True)
     resumme = resumme_raw.copy()
 
     ## Cleaning and preprocessing
@@ -41,20 +56,23 @@ if __name__ == "__main__":
 
     print(reviews[['review', 'cleaned_review']].sample(5))
 
+
+    label_keys = list(label_mapping.keys())
+
     ## Analyze sentiment
     # Analyze sentiment with VADER
     reviews = ml_processing.analyzeSentiment(reviews)
 
     # Extract common positive and negative phrases
-    common_positive_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'positive', n = 10)
-    common_negative_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'negative', n = 10)
+    common_positive_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'positive', n = number_of_words)
+    common_negative_words = ml_processing.extractCommonWords(reviews, sentiment_label = 'negative', n = number_of_words)
 
     print("Top Positive Words:", common_positive_words)
     print("Top Negative Words:", common_negative_words)
 
     # Extract common positive and negative bigrams
-    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n = 2, top_n=10)
-    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n = 2, top_n=10)
+    common_positive_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='positive', n = n_grams, top_n=number_of_words)
+    common_negative_bigrams = ml_processing.extractCommonNgrams(reviews, sentiment_label='negative', n = n_grams, top_n=number_of_words)
 
     print("Top Positive Bigrams:", common_positive_bigrams)
     print("Top Negative Bigrams:", common_negative_bigrams)
@@ -62,26 +80,24 @@ if __name__ == "__main__":
     if plot:
         plots.plotSentimentTrend(reviews, years_limit=2)
 
-    most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
-    print("Top Most Recommended:", most_recommended)
-    print("Least Recommended :", less_recommended)
+    #most_recommended, less_recommended = ml_processing.analyzeRecommendations(reviews)
+    #print("Top Most Recommended:", most_recommended)
+    #print("Least Recommended :", less_recommended)
 
     ## Calculate embeddings
     tqdm.pandas(desc="Generating Embeddings")
     reviews['embedding'] = reviews['cleaned_review'].progress_apply(ml_processing.get_embedding)
 
     ## Analyze embeddings
-    embeddings_pca = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, plot)
+    embeddings_pca = ml_processing.calculateAndVisualizeEmbeddingsPCA(reviews, score_column = label_keys[0], plot = plot)
     embeddings_umap = ml_processing.calculateAndVisualizeEmbeddingsUMAP(reviews, plot)
 
     # Visualize with DBSCAN clusters
-    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = plot)
-    umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=0.5, min_samples=5, plot = plot)
-
-    if plot:
-        plots.plotCommunities(reviews)
+    pca_clusters = ml_processing.calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(reviews, score_column = label_keys[0], eps=eps, min_samples=min_samples, plot = plot)
+    umap_clusters = ml_processing.calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(reviews, eps=eps, min_samples=min_samples, plot = plot)
 
     ## Join PCA and UMAP clusters info to reviews
+    reviews = reviews.reset_index().rename(columns={'index':'review_id'})
     reviews = reviews.merge(pca_clusters[['review_id','pca_cluster']]).merge(umap_clusters[['review_id','umap_cluster']])
 
     ## Save processed reviews
@@ -100,15 +116,15 @@ if __name__ == "__main__":
     num_periods = 3  # Number of periods with the lowest average score to select
 
     # Analyze for each score type
-    negative_periods_rating_reviews, low_score_periods = ml_processing.analyzeLowScores(reviews, 'rating_score', time_period, num_periods)
-    negative_periods_food_reviews, _ = ml_processing.analyzeLowScores(reviews, 'food_score', time_period, num_periods)
-    negative_periods_service_reviews, _ = ml_processing.analyzeLowScores(reviews, 'service_score', time_period, num_periods)
-    negative_periods_atmosphere_reviews, _ = ml_processing.analyzeLowScores(reviews, 'atmosphere_score', time_period, num_periods)
+    negative_periods_rating_reviews, low_score_periods = ml_processing.analyzeLowScores(reviews, label_keys[0], time_period, num_periods)
+    negative_periods_food_reviews, _ = ml_processing.analyzeLowScores(reviews, label_keys[1], time_period, num_periods)
+    negative_periods_service_reviews, _ = ml_processing.analyzeLowScores(reviews, label_keys[2], time_period, num_periods)
+    negative_periods_atmosphere_reviews, _ = ml_processing.analyzeLowScores(reviews, label_keys[3], time_period, num_periods)
 
-    negative_periods_rating_topics = ml_processing.generateTopicsPerPeriod(negative_periods_rating_reviews, 'rating_score')
-    negative_periods_food_topics = ml_processing.generateTopicsPerPeriod(negative_periods_food_reviews, 'food_score')
-    negative_periods_service_topics = ml_processing.generateTopicsPerPeriod(negative_periods_service_reviews, 'service_score')
-    negative_periods_atmosphere_topics = ml_processing.generateTopicsPerPeriod(negative_periods_atmosphere_reviews, 'atmosphere_score')
+    negative_periods_rating_topics = ml_processing.generateTopicsPerPeriod(negative_periods_rating_reviews, label_keys[0])
+    negative_periods_food_topics = ml_processing.generateTopicsPerPeriod(negative_periods_food_reviews, label_keys[1])
+    negative_periods_service_topics = ml_processing.generateTopicsPerPeriod(negative_periods_service_reviews, label_keys[2])
+    negative_periods_atmosphere_topics = ml_processing.generateTopicsPerPeriod(negative_periods_atmosphere_reviews, label_keys[3])
 
     negative_periods_topics = {**negative_periods_rating_topics, **negative_periods_food_topics, **negative_periods_service_topics, **negative_periods_atmosphere_topics}
 
@@ -128,17 +144,17 @@ if __name__ == "__main__":
     ## Extract reviews samples
     # Calculate total score using the three main scores
     reviews_score = reviews.copy()
-    food_score_mean = np.round(reviews_score['food_score'].mean(), 2) / 5
-    service_score_mean = np.round(reviews_score['service_score'].mean(), 2) / 5
-    atmosphere_score_mean = np.round(reviews_score['atmosphere_score'].mean(), 2) / 5
+    food_score_mean = np.round(reviews_score[label_keys[1]].mean(), 2) / 5
+    service_score_mean = np.round(reviews_score[label_keys[2]].mean(), 2) / 5
+    atmosphere_score_mean = np.round(reviews_score[label_keys[3]].mean(), 2) / 5
 
-    reviews_score['food_score'] = reviews_score['food_score'].fillna(food_score_mean)
-    reviews_score['service_score'] = reviews_score['service_score'].fillna(service_score_mean)
-    reviews_score['atmosphere_score'] = reviews_score['atmosphere_score'].fillna(atmosphere_score_mean)
+    reviews_score[label_keys[1]] = reviews_score[label_keys[1]].fillna(food_score_mean)
+    reviews_score[label_keys[2]] = reviews_score[label_keys[2]].fillna(service_score_mean)
+    reviews_score[label_keys[3]] = reviews_score[label_keys[3]].fillna(atmosphere_score_mean)
 
     reviews_score['total_score'] = np.round(
-        reviews_score['rating_score'] +
-        (reviews_score['food_score']/5 + reviews_score['service_score']/5 + reviews_score['atmosphere_score']/5) / 3, 2)
+        reviews_score[label_keys[0]] +
+        (reviews_score[label_keys[1]]/5 + reviews_score[label_keys[2]]/5 + reviews_score[label_keys[3]]/5) / 3, 2)
 
     # Filter not null reviews
     valid_reviews = reviews_score[reviews_score['review'].notna()]
@@ -147,21 +163,21 @@ if __name__ == "__main__":
     best_reviews = valid_reviews[valid_reviews['total_score'] > 5]
     worst_reviews = valid_reviews[valid_reviews['total_score'] < 2.5]
 
-    recent_best_reviews = best_reviews.sort_values(by='date', ascending=False).head(5)
+    recent_best_reviews = best_reviews.sort_values(by='date', ascending=False)
     print('last_positive_reviews')
     print(recent_best_reviews.review)
-    recent_worst_reviews = worst_reviews.sort_values(by='date', ascending=False).head(5)
+    recent_worst_reviews = worst_reviews.sort_values(by='date', ascending=False)
     print('\nlast_negative_reviews')
     print(recent_worst_reviews.review)
 
-    best_reviews_sample = best_reviews.sort_values(by='total_score', ascending=False).head(5)
+    best_reviews_sample = best_reviews.sort_values(by='total_score', ascending=False)
     print('\nbest_reviews_sample')
     print(best_reviews_sample.review)
-    worst_reviews_sample = worst_reviews.sort_values(by='total_score', ascending=True).head(5)
+    worst_reviews_sample = worst_reviews.sort_values(by='total_score', ascending=True)
     print('\nworst_reviews_sample')
     print(worst_reviews_sample.review)
 
-    low_score_reviews = negative_periods_rating_reviews[negative_periods_rating_reviews['review'].notna()][['month','review','rating_score']]
+    low_score_reviews = negative_periods_rating_reviews[negative_periods_rating_reviews['review'].notna()][['month','review',label_keys[0]]]
     print('\nlow_score_reviews')
     print(low_score_reviews)
     print(low_score_periods)
@@ -186,8 +202,8 @@ if __name__ == "__main__":
     combined_reviews.to_csv(processed_data_path + name + '_sample_selected_reviews.csv', index=False)
     print('OK! -> processed sample reviews saved at', processed_data_path + name + '_sample_selected_reviews.csv')
 
-    ## Extract Insights with AI
-    client = ai_insights.initChatGPTClient()
+    ## Extract Insights with LLM
+    client = llm_insights.initChatGPTClient()
     # General insights
     general_insights_prompt = (
         "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms, in JSON format.\n"
@@ -206,7 +222,7 @@ if __name__ == "__main__":
     )
     print(reviews_summary_dict)
 
-    insigths_summary_dict = ai_insights.extractInsightsWithAI(reviews_summary_dict, general_insights_prompt, client)
+    insigths_summary_dict = llm_insights.extractInsightsWithLLM(reviews_summary_dict, general_insights_prompt, client)
     print(insigths_summary_dict)
 
     ## Save insights
@@ -235,7 +251,7 @@ if __name__ == "__main__":
     )
     print(negative_periods_topics)
 
-    insigths_summary_dict = ai_insights.extractInsightsWithAI(negative_periods_topics, negative_periods_insights_prompt, client)
+    insigths_summary_dict = llm_insights.extractInsightsWithLLM(negative_periods_topics, negative_periods_insights_prompt, client)
     print(insigths_summary_dict)
 
     ## Save insights

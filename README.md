@@ -1,24 +1,27 @@
 # Sentiment Analysis and Review Classification Project
 
+
+add img/gif
+
+
 ## Overview
 This project aims to provide a simple, cost-effective solution for small online stores and startups to analyze customer reviews. The main goal is to extract insights from customer feedback that will help these businesses improve their products and services. By using Python tools and machine learning, this project helps to classify customer sentiment (positive, neutral, negative) and presents these insights in an easy-to-read dashboard using Power BI.
 
 ## Problem Statement
-Small eCommerce businesses often lack the resources to conduct in-depth analysis of customer reviews. Understanding customer satisfaction through reviews can be crucial for product and service improvements. This project addresses this need by delivering a solution that is both accessible and scalable, allowing small businesses to efficiently analyze customer sentiment without the need for extensive technical knowledge or expensive tools.
+Small commerce businesses often lack the resources to conduct in-depth analysis of customer reviews. Understanding customer satisfaction through reviews can be crucial for product and service improvements. This project addresses this need by delivering a solution that is both accessible and scalable, allowing small businesses to efficiently analyze customer sentiment without the need for extensive technical knowledge or expensive tools.
 
 ## Technologies
 - **Selenium**: Used for scraping customer reviews from online stores.
 - **CSV/Google Drive**: Data storage in CSV format, either locally or in Google Drive.
 - **pandas**: Used for cleaning and processing the text data.
 - **scikit-learn**: Implements a simple machine learning model for sentiment analysis.
-- **TBD**: Displays the results in an accessible and interactive dashboard.
+- **streamlit**: Displays the results in an accessible and interactive dashboard.
 
 ## Project Phases
 1. **Data Collection (Scraping)**: Reviews will be collected from online stores using Python's Scrapy framework and stored in CSV format.
-2. **Data Storage**: The raw data will be saved in CSV files locally or in Google Drive.
-3. **Data Cleaning and Processing**: The data will be processed using pandas to clean and prepare it for machine learning analysis.
-4. **Sentiment Analysis (ML Model)**: A machine learning model, implemented in scikit-learn, will classify reviews as positive, neutral, or negative.
-5. **Visualization**: The results of the analysis will be displayed in a Power BI dashboard for easy interpretation and insights.
+2. **Data Storage and Cleaning**: The raw data will be saved in CSV files locally or in Google Drive.
+3. **Data Analysis**: The data will be processed using pandas to clean and prepare it for machine learning analysis.  A machine learning model, implemented in scikit-learn, will classify reviews as positive, neutral, or negative.
+4. **Data Visualization**: The results of the analysis will be displayed with a streamlit app for easy interpretation and insights.
 
 ## Folder Structure
 
@@ -26,27 +29,36 @@ Small eCommerce businesses often lack the resources to conduct in-depth analysis
 sentiment-analysis-reviews/
 │
 ├── data/                  
-│   ├── raw/               # Raw data collected from Scrapy (CSV)
-│   └── processed/         # Cleaned and processed data
+│   ├── raw/                # Raw data collected from Scrapy (CSV)
+│   └── processed/          # Cleaned and processed data
 │
 ├── notebooks/
-│   └── scraping.ipynb                # Notebook for scrap the data
-│   └── data_cleaning.ipynb           # Notebook for initial data exploration and cleaning
-│   └── sentiment_analysis.ipynb      # Notebook for training and testing the ML model
+│   ├── scraping.ipynb              # Notebook for scrap the data
+│   ├── data_cleaning.ipynb         # Notebook for initial data exploration and cleaning
+│   ├── app_dev.ipynb               # Used to test and dev the parts of the streamlit app
+│   ├── generate_big_sample.ipynb   # Generate a example dataset using yelp dataset as base: https://www.yelp.com/dataset/documentation/main
+│   └── sentiment_analysis.ipynb    # Notebook for training and testing the ML model
 │
 ├── src/                   
-│   ├── scraper.py         # Script for scrap the data with selenium
-│   ├── cleaning.py        # Script for cleaning the data with pandas
-│   ├── ml_processing.py        # Script with functions to do the sentiment analysis and word processing 
-│   ├── ai_insights.py        # Script with functions to extract the insights using GPT
-│   ├── plots.py        # Script with plot functions for sentiment analysis
-│   └── sentiment.py       # Script for sentiment analysis and extraction of insights 
+│   ├── scraper.py          # Script for scrap the data with selenium
+│   ├── cleaning.py         # Script for cleaning the data with pandas
+│   ├── ml_processing.py    # Script with functions to do the sentiment analysis and word processing 
+│   ├── llm_insights.py     # Script with functions to extract the insights using GPT
+│   ├── plots.py            # Script with plot functions for sentiment analysis
+│   └── sentiment.py        # Script for sentiment analysis and extraction of insights 
 │
-├── reports/               
+├── app/               
+│   ├── app.py              # Main code of the streamlit app
+│   ├── header.py           # Functions for header
+│   ├── tab_1.py            # Functions for tab 1
+│   └── tab_3.py            # Functions for tab 3
 │
-├── requirements.txt       # Dependencies (pandas, scikit-learn, scrapy, etc.)
-├── README.md              # Project documentation
-└── .gitignore             # Ignored files for the repository
+├── requirements.txt        # Dependencies (pandas, scikit-learn, scrapy, etc.)
+├── environment.yml         # Conda environment configuration
+├── chromedriver            # chromedriver exec, download it from Chrome for Developers
+├── openai_setup.yml        # Keys for co (dont sync it in your repo!)
+├── README.md               # Project documentation
+└── .gitignore              # Ignored files for the repository
 
 ```
 
@@ -113,3 +125,23 @@ The script will extract to the processed folder the insights extracted in json f
 - **Low-Score Period Analysis**: The notebook specifically extracts reviews from periods with lower overall scores to analyze negative trends, helping to identify areas for improvement in customer experience.
 - **Topic Extraction with LDA**: Latent Dirichlet Allocation (LDA) is used to uncover the main topics in the reviews, providing a clearer picture of what customers frequently discuss, both positively and negatively.
 - **Community Analysis with TF-IDF**: Using TfidfVectorizer, the notebook groups reviews into communities based on similar keywords and phrases, enhancing the understanding of common customer concerns.
+
+### Data Visualization
+
+To display the extracted insights, I have developed an **interactive Streamlit application** that generates an insightful dashboard. This app allows you to load the processed data and visualize it through user-friendly metrics and graphs. Below is the setup for running the Streamlit application.
+
+1. **App Structure**: The Streamlit app contains a header with key metrics and four main tabs:
+   - **📋 Status**: General summary with trends and recommendations.
+   - **📢 Customer Insights**: Detailed analysis of strengths, weaknesses, and areas for improvement.
+   - **🕵🏻‍♂️ Bad Times Deep Dive**: Analysis of periods with low scores.
+   - **🧪 ML Lab**: Space for exploring and experimenting with machine learning techniques on the data.
+
+2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
+
+```bash
+streamlit run app/app.py
+```
+
+3. **Data Loading**: The app allows you to upload the generated **ML file** (processed using `sentiment.py`) to visualize insights. Only this primary file needs to be uploaded; all other necessary files will load automatically. The ML file contains processed reviews data, which is crucial for exploring key metrics, sentiment insights, trends, and advanced machine learning analysis across different tabs.
+
+4. **Interactivity**: The tool offers various filters to customize the data view based on desired information. Additionally, users can dynamically extract insights from selected periods by connecting to the **GPT API** for advanced feedback analysis. In the **ML Lab** tab, several machine learning parameters can be adjusted, allowing users to experiment with the analysis settings and "play" with the results to gain deeper insights or identify patterns.

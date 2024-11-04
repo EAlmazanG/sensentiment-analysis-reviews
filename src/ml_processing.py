@@ -44,7 +44,7 @@ def clean_text(text):
     return ' '.join(tokens)
 
 # Extract sentiment for each review using 
-def analyzeSentiment(df):
+def analyzeSentiment(df, score_colum = 'rating_score',):
     # Initialize VADER sentiment analyzer
     sia = SentimentIntensityAnalyzer()
 
@@ -52,10 +52,10 @@ def analyzeSentiment(df):
     df['vader_sentiment'] = df['cleaned_review'].apply(lambda x: sia.polarity_scores(x)['compound'])
     
     # Classify sentiment into positive, neutral, negative using rating_score and vader_sentiment
-    def classify_sentiment(row):
-        if row['rating_score'] >= 4:
+    def classify_sentiment(row, score_colum = score_colum):
+        if row[score_colum] >= 4:
             return 'positive'
-        elif row['rating_score'] <= 2:
+        elif row[score_colum] <= 2:
             return 'negative'
         elif row['vader_sentiment'] > 0.05:
             return 'positive'
@@ -116,7 +116,9 @@ def analyzeRecommendations(df):
 
     # Count the frequency of each dish
     dish_counts = Counter(all_dishes)
-
+    if not dish_counts:
+        return [], []
+    
     # Most and least recommended dishes
     most_common_dishes = dish_counts.most_common(3)
     min_count = min(dish_counts.values())
@@ -214,14 +216,14 @@ def generateTopicsbyColumn(reviews, group_columns):
     return topics_dict
 
 # Extract the periods with less score and the reviews of each period
-def analyzeLowScores(df, score_column, time_period='month', num_periods=1, last_periods = 12):
+def analyzeLowScores(df, score_column = 'rating_score', time_period='month', num_periods=1, last_periods = 12):
     # Generate extra granularity
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df['month'] = df['date'].dt.to_period('M')
     df['year'] = df['date'].dt.year
 
     # Calculate the mean and standard deviation of the scores
-    last_periods = df[df['date'] >= pd.to_datetime('today') - pd.DateOffset(months=last_periods)]
+    last_periods = df[df['date'] >= df['date'].max() - pd.DateOffset(months=last_periods)]
 
     # Compute averages for the required periods
     last_periods_avg_scores = last_periods.groupby(time_period)[score_column].mean().reset_index()
@@ -251,7 +253,7 @@ def analyzeLowScores(df, score_column, time_period='month', num_periods=1, last_
     return period_reviews, low_score_periods
 
 # Calculate topics for each low_score_period and concatenate results
-def generateTopicsPerPeriod(df, score_column, number_of_topics=1):
+def generateTopicsPerPeriod(df, score_column = 'rating_score', number_of_topics=1):
     valid_reviews = df[df['review'].notna()]
     topics_dict = {score_column: {}}
     for period in valid_reviews['low_score_period'].unique():
@@ -266,7 +268,7 @@ def format_words(words_list):
     return {str(word): int(weight) if isinstance(weight, (int, np.integer)) else weight for word, weight in words_list}
 
 # UMAP Embeddings Visualization
-def calculateAndVisualizeEmbeddingsUMAP(df, plot = True):
+def calculateAndVisualizeEmbeddingsUMAP(df, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
     sentiment_labels = df['sentiment_label']
 
@@ -278,28 +280,37 @@ def calculateAndVisualizeEmbeddingsUMAP(df, plot = True):
     viz_df = pd.DataFrame(reduced_embeddings, columns=['x', 'y'])
     viz_df['sentiment_label'] = sentiment_labels
 
-    if plot:
-        # Scatter plot with Plotly for interactive visualization
-        fig = px.scatter(
-            viz_df,
-            x='x',
-            y='y',
-            color='sentiment_label',
-            title='Embedding Visualization with UMAP',
-            labels={'x': 'UMAP Dimension 1', 'y': 'UMAP Dimension 2'},
-            color_discrete_map={'positive': 'green', 'neutral': 'gray', 'negative': 'red'},
-            opacity=0.7
-        )
-        fig.update_layout(showlegend=True, legend=dict(title='Sentiment'), margin=dict(l=10, r=10, t=40, b=10))
+    # Scatter plot with Plotly for interactive visualization
+    fig = px.scatter(
+        viz_df,
+        x='x',
+        y='y',
+        color='sentiment_label',
+        title='Embedding Visualization with UMAP',
+        labels={'x': 'UMAP Dimension 1', 'y': 'UMAP Dimension 2'},
+        color_discrete_map={'positive': 'green', 'neutral': 'gray', 'negative': 'red'},
+        opacity=0.7
+    )
+    fig.update_layout(
+        showlegend=True, legend=dict(title='Sentiment'),
+        margin=dict(l=0, r=10, t=30, b=10),
+        width=700, 
+        height=500
+    )
+    
+    if plot:    
         fig.show()
 
-    return reduced_embeddings
+    if app:
+        return reduced_embeddings, fig
+    else:
+        return reduced_embeddings
 
 # PCA Embeddings Visualization
-def calculateAndVisualizeEmbeddingsPCA(df, plot = True):
+def calculateAndVisualizeEmbeddingsPCA(df, score_column = 'rating_score', plot = True, app = False):
     # Convert embeddings to a NumPy array
     embeddings = np.array(df['embedding'].tolist())
-    ratings = df['rating_score']
+    ratings = df[score_column]
     
     # Perform PCA for dimensionality reduction
     pca = PCA(n_components=2)
@@ -309,47 +320,53 @@ def calculateAndVisualizeEmbeddingsPCA(df, plot = True):
     var_explained = pca.explained_variance_ratio_ * 100
     var1, var2 = var_explained
     
-    if plot:
-        # Prepare DataFrame for Plotly
-        plot_df = pd.DataFrame({
-            'PCA Component 1': reduced_embeddings[:, 0],
-            'PCA Component 2': reduced_embeddings[:, 1],
-            'Rating Score': ratings,
-            'Review ID': df.get('review_id', range(len(df)))  # Optional identifier
-        })
-        # Create interactive scatter plot
-        fig = px.scatter(
-            plot_df,
-            x='PCA Component 1',
-            y='PCA Component 2',
-            color='Rating Score',
-            color_continuous_scale='Viridis',
-            hover_data=['Review ID', 'Rating Score'],
-            title=f'Embeddings by Rating Score (PCA 1: {var1:.1f}%, PCA 2: {var2:.1f}%)',
-            labels={
-                'PCA Component 1': f'PCA 1 ({var1:.1f}% variance)',
-                'PCA Component 2': f'PCA 2 ({var2:.1f}% variance)',
-                'Rating Score': 'Rating Score'
-            }
-        )
-        # Enhance layout for clarity
-        fig.update_layout(
-            template='plotly_white',
-            coloraxis_colorbar=dict(
-                title='Rating Score',
-                tickmode='linear'
-            ),
-            hovermode='closest'
-        )
+    # Prepare DataFrame for Plotly
+    plot_df = pd.DataFrame({
+        'PCA Component 1': reduced_embeddings[:, 0],
+        'PCA Component 2': reduced_embeddings[:, 1],
+        'Rating Score': ratings,
+        'Review ID': df.get('review_id', range(len(df)))  # Optional identifier
+    })
+    # Create interactive scatter plot
+    fig = px.scatter(
+        plot_df,
+        x='PCA Component 1',
+        y='PCA Component 2',
+        color='Rating Score',
+        color_continuous_scale='Viridis',
+        hover_data=['Review ID', 'Rating Score'],
+        title=f'Embeddings by Rating Score (PCA 1: {var1:.1f}%, PCA 2: {var2:.1f}%)',
+        labels={
+            'PCA Component 1': f'PCA 1 ({var1:.1f}% variance)',
+            'PCA Component 2': f'PCA 2 ({var2:.1f}% variance)',
+            'Rating Score': 'Rating Score'
+        }
+    )
+    # Enhance layout for clarity
+    fig.update_layout(
+        template='plotly_white',
+        coloraxis_colorbar=dict(
+            title='Rating Score',
+            tickmode='linear'
+        ),
+        hovermode='closest',
+        margin=dict(l=0, r=10, t=30, b=10),
+        width=700, 
+        height=500
+    )
         
+    if plot:    
         fig.show()
 
-    return reduced_embeddings
+    if app:
+        return reduced_embeddings, fig
+    else:
+        return reduced_embeddings
 
 # PCA Visualization with DBSCAN
-def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10, plot = True):
+def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, score_column = 'rating_score', eps=0.55, min_samples=10, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
-    ratings = df['rating_score']
+    ratings = df[score_column]
     
     pca = PCA(n_components=2)
     reduced = pca.fit_transform(embeddings)
@@ -360,38 +377,45 @@ def calculateAndVisualizeEmbeddingsPCA_with_DBSCAN(df, eps=0.55, min_samples=10,
     plot_df = pd.DataFrame({
         'pca_component_1': reduced[:, 0],
         'pca_component_2': reduced[:, 1],
-        'rating_score': ratings,
+        score_column: ratings,
         'pca_cluster': clusters,
         'review_id': df.get('review_id', range(len(df)))
     })
 
-    if plot:
-        fig = px.scatter(
-            plot_df,
-            x='pca_component_1',
-            y='pca_component_2',
-            color='pca_cluster',
-            color_continuous_scale='Viridis',
-            hover_data=['review_id', 'rating_score'],
-            title=f'PCA with DBSCAN (PCA1: {var1:.1f}%, PCA2: {var2:.1f}%)',
-            labels={
-                'PCA 1': f'pca_component_1 ({var1:.1f}% variance)',
-                'PCA 2': f'pca_component_2 ({var2:.1f}% variance)',
-                'Cluster': 'pca_cluster'
-            }
-        )
-        
-        fig.update_layout(
-            template='plotly_white',
-            coloraxis_colorbar=dict(title='pca_cluster'),
-            hovermode='closest'
-        )
-        
+    fig = px.scatter(
+        plot_df,
+        x='pca_component_1',
+        y='pca_component_2',
+        color='pca_cluster',
+        color_continuous_scale='Viridis',
+        hover_data=['review_id', score_column],
+        title=f'PCA with DBSCAN (PCA1: {var1:.1f}%, PCA2: {var2:.1f}%)',
+        labels={
+            'PCA 1': f'pca_component_1 ({var1:.1f}% variance)',
+            'PCA 2': f'pca_component_2 ({var2:.1f}% variance)',
+            'Cluster': 'pca_cluster'
+        }
+    )
+    
+    fig.update_layout(
+        template='plotly_white',
+        coloraxis_colorbar=dict(title='pca_cluster'),
+        hovermode='closest',
+        margin=dict(l=0, r=10, t=30, b=10),
+        width=700, 
+        height=500
+    )
+
+    if plot:    
         fig.show()
-    return plot_df
+
+    if app:
+        return plot_df, fig
+    else:
+        return plot_df
 
 # UMAP Visualization with DBSCAN
-def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10, plot = True):
+def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10, plot = True, app = False):
     embeddings = np.array(df['embedding'].tolist())
     sentiment = df['sentiment_label']
     
@@ -408,29 +432,35 @@ def calculateAndVisualizeEmbeddingsUMAP_with_DBSCAN(df, eps=0.7, min_samples=10,
         'review_id': df.get('review_id', range(len(df)))
     })
 
-    if plot:
-        fig = px.scatter(
-            plot_df,
-            x='umap_component_1',
-            y='umap_component_2',
-            color='umap_cluster',
-            color_continuous_scale='Viridis',
-            hover_data=['sentiment', 'umap_cluster'],
-            title='UMAP with DBSCAN',
-            labels={
-                'UMAP 1': 'umap_component_1',
-                'UMAP 2': 'umap_component_2',
-                'Cluster': 'umap_cluster'
-            },
-            opacity=0.7
-        )
-        
-        fig.update_layout(
-            showlegend=True,
-            legend=dict(title='umap_cluster'),
-            margin=dict(l=10, r=10, t=40, b=10)
-        )
-        
+    fig = px.scatter(
+        plot_df,
+        x='umap_component_1',
+        y='umap_component_2',
+        color='umap_cluster',
+        color_continuous_scale='Viridis',
+        hover_data=['sentiment', 'umap_cluster'],
+        title='UMAP with DBSCAN',
+        labels={
+            'UMAP 1': 'umap_component_1',
+            'UMAP 2': 'umap_component_2',
+            'Cluster': 'umap_cluster'
+        },
+        opacity=0.7
+    )
+    
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(title='umap_cluster'),
+        hovermode='closest',
+        margin=dict(l=0, r=10, t=30, b=10),
+        width=700, 
+        height=500
+    )
+
+    if plot:    
         fig.show()
         
-    return plot_df
+    if app:
+        return plot_df, fig
+    else:
+        return plot_df
