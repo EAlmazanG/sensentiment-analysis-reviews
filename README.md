@@ -53,6 +53,7 @@ sentiment-analysis-reviews/
 │   ├── tab_1.py            # Functions for tab 1
 │   └── tab_3.py            # Functions for tab 3
 │
+├── img/                    # Images and GIFs for README
 ├── requirements.txt        # Dependencies (pandas, scikit-learn, scrapy, etc.)
 ├── environment.yml         # Conda environment configuration
 ├── chromedriver            # chromedriver exec, download it from Chrome for Developers
