@@ -1,7 +1,7 @@
 # Sentiment Analysis and Review Classification Project
 
 
-![Preview of the dashboard](img/sar_tab1.gif)
+![Preview of the dashboard](img/sar_main.gif)
 
 
 ## Overview
@@ -172,6 +172,12 @@ To display the extracted insights, I have developed an **interactive Streamlit a
    - **🧪 ML Lab**: Space for exploring and experimenting with machine learning techniques on the data.
 
 > **‼️👀🚨 IMPORTANT 🚨👀‼️**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
+
+![Tab1 of the dashboard](img/sar_tab1.gif)
+
+![Tab2 of the dashboard](img/sar_tab2.gif)
+
+![Tab3 of the dashboard](img/sar_tab3.gif)
 
 2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
 
