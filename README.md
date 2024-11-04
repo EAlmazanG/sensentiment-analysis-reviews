@@ -1,8 +1,6 @@
 # Sentiment Analysis and Review Classification Project
 
-
 ![Preview of the dashboard](img/sar_main.gif)
-
 
 ## Overview
 This project aims to provide a simple, cost-effective solution for small online stores and startups to analyze customer reviews. The main goal is to extract insights from customer feedback that will help these businesses improve their products and services. By using Python tools and machine learning, this project helps to classify customer sentiment (positive, neutral, negative) and presents these insights in an easy-to-read dashboard using Streamlit.
@@ -173,12 +171,6 @@ To display the extracted insights, I have developed an **interactive Streamlit a
 
 > **‼️👀🚨 IMPORTANT 🚨👀‼️**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
 
-![Tab1 of the dashboard](img/sar_tab1.gif)
-
-![Tab2 of the dashboard](img/sar_tab2.gif)
-
-![Tab3 of the dashboard](img/sar_tab3.gif)
-
 2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
 
 ```bash
@@ -188,3 +180,9 @@ streamlit run app/app.py
 3. **Data Loading**: The app allows you to upload the generated **ML file** (processed using `sentiment.py`) to visualize insights. Only this primary file needs to be uploaded; all other necessary files will load automatically. The ML file contains processed reviews data, which is crucial for exploring key metrics, sentiment insights, trends, and advanced machine learning analysis across different tabs.
 
 4. **Interactivity**: The tool offers various filters to customize the data view based on desired information. Additionally, users can dynamically extract insights from selected periods by connecting to the **GPT API** for advanced feedback analysis. In the **ML Lab** tab, several machine learning parameters can be adjusted, allowing users to experiment with the analysis settings and "play" with the results to gain deeper insights or identify patterns.
+
+![Tab1 of the dashboard](img/sar_tab1.gif)
+
+![Tab2 of the dashboard](img/sar_tab2.gif)
+
+![Tab3 of the dashboard](img/sar_tab3.gif)
