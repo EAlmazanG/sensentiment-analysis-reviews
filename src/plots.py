@@ -14,7 +14,8 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-def plotAverageScoresAndReviews(reviews, resumme_raw):
+# Plot a basic resume of the KPIs
+def plotAverageScoresAndReviews(reviews, resumme_raw, app=False):
     # Calculate the average for each score
     average_food = reviews['food_score'].mean()
     average_service = reviews['service_score'].mean()
@@ -59,9 +60,13 @@ def plotAverageScoresAndReviews(reviews, resumme_raw):
     fig.update_layout(height=500, width=1200, plot_bgcolor="white", paper_bgcolor="white", showlegend=False)
 
     # Show the figure
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
 
-def plotScoreTrends(reviews):
+# Plot a basic views of the KPIs
+def plotScoreTrends(reviews, app = False):
     # Convert date column to datetime format and create additional time columns
     reviews['date'] = pd.to_datetime(reviews['date'], errors='coerce')
     reviews['month'] = reviews['date'].dt.to_period('M')
@@ -75,11 +80,6 @@ def plotScoreTrends(reviews):
     last_years = reviews[reviews['date'] >= limit_date - pd.DateOffset(years=8)]
     last_weeks = reviews[reviews['date'] >= limit_date - pd.DateOffset(weeks=5)]
 
-    # Compute averages for the required periods
-    monthly_avg_scores = last_months.groupby('month')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
-    yearly_avg_scores = last_years.groupby('year')[['rating_score']].mean()
-    weekly_avg_scores = last_weeks.groupby('week')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
-
     # Update the axis labels for each score to be more readable
     label_mapping = {
         'rating_score': 'Rating',
@@ -87,6 +87,11 @@ def plotScoreTrends(reviews):
         'service_score': 'Service',
         'atmosphere_score': 'Atmosphere'
     }
+
+    # Compute averages for the required periods
+    monthly_avg_scores = last_months.groupby('month')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
+    yearly_avg_scores = last_years.groupby('year')[['rating_score']].mean()
+    weekly_avg_scores = last_weeks.groupby('week')[['rating_score', 'food_score', 'service_score', 'atmosphere_score']].mean()
 
     # Create a figure with subplots using the Z-layout
     fig = make_subplots(rows=2, cols=2,
@@ -148,16 +153,19 @@ def plotScoreTrends(reviews):
     fig.update_traces(marker=dict(size=8), selector=dict(name="Rating"))
     
     # Show the figure
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
 
 # Plot the evolution of distribution of reviews on time based on sentiments
-def plotSentimentTrend(df, years_limit = 2):
+def plotSentimentTrend(df, years_limit = 2, app = False):
     # Convert date to datetime format and handle missing values
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
     
     # Filter only the last 6 years
-    last_six_years = datetime.datetime.now() - pd.DateOffset(years=years_limit)
+    last_six_years = df['date'].max() - pd.DateOffset(years=years_limit)
     df = df[df['date'] >= last_six_years]
 
     # Set date as index for resampling
@@ -177,14 +185,14 @@ def plotSentimentTrend(df, years_limit = 2):
         x='date',
         y='percentage',
         color='sentiment_label',
-        title='Sentiment Percentage Over the Last ' + str(years_limit) + ' Years',
+        #title='Sentiment Percentage Over the Last ' + str(years_limit) + ' Years',
         labels={'date': '', 'percentage': 'Percentage of Reviews (%)', 'sentiment_label': 'Sentiment'},
         template='plotly_white',
     )
 
     # Customize layout
     fig.update_layout(
-        title=dict(x=0.5, xanchor='center', font=dict(size=18, color='black')),
+        #title=dict(x=0.5, xanchor='center', font=dict(size=18, color='black')),
         xaxis=dict(showgrid=False, zeroline=False),
         yaxis=dict(showgrid=True, title='Percentage of Reviews', ticksuffix='%'),
         legend=dict(title='', orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
@@ -192,7 +200,7 @@ def plotSentimentTrend(df, years_limit = 2):
         plot_bgcolor='rgba(0,0,0,0)',
         hovermode='x unified',
         width=1200,
-        height=400,
+        height=400
     )
 
     # Customize color for sentiment categories
@@ -207,10 +215,13 @@ def plotSentimentTrend(df, years_limit = 2):
     fig.update_xaxes(showline=False)
     fig.update_yaxes(showline=False, range=[0, 100])  # Percentage scale from 0 to 100
 
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
 
-def plotKdistance(reduced_embeddings, k=5, method='PCA'):
-    # Compute k-nearest neighbors
+# Compute k-nearest neighbors
+def plotKdistance(reduced_embeddings, k=5, method='PCA', app = False):
     neighbors = NearestNeighbors(n_neighbors=k)
     neighbors_fit = neighbors.fit(reduced_embeddings)
     distances, _ = neighbors_fit.kneighbors(reduced_embeddings)
@@ -241,11 +252,14 @@ def plotKdistance(reduced_embeddings, k=5, method='PCA'):
     # Add light grid lines
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
-    
-    fig.show()
+
+    if app:
+        return fig
+    else:
+        fig.show()
 
 # Plot reviews by communities, using embeddingsm cosine_similarity and Girvan-Newman algorithm
-def plotCommunities(reviews):
+def plotCommunities(reviews, app = False):
     # Load embeddings from reviews
     ebm_reviews = np.array(reviews['embedding'].tolist())
 
@@ -333,12 +347,14 @@ def plotCommunities(reviews):
 
     fig = go.Figure(data=[edge_trace, node_trace],
                     layout=go.Layout(
-                        title='Reviews by Communities',
-                        titlefont_size=16,
+                        #title='Reviews by Communities',
+                        #titlefont_size=16,
                         showlegend=False,
                         hovermode='closest',
                         margin=dict(b=20, l=5, r=5, t=40),
                         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
-
-    fig.show()
+    if app:
+        return fig
+    else:
+        fig.show()
