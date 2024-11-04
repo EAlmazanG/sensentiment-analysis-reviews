@@ -136,6 +136,9 @@ To display the extracted insights, I have developed an **interactive Streamlit a
    - **🕵🏻‍♂️ Bad Times Deep Dive**: Analysis of periods with low scores.
    - **🧪 ML Lab**: Space for exploring and experimenting with machine learning techniques on the data.
 
+> **Disclaimer**: The **ML Lab** tab in the dashboard significantly increases the processing time, especially with large datasets. By default, this tab will be deactivated in the app via a slider. Activate it only if you wish to explore this feature and experiment with machine learning techniques on the data.
+
+
 2. **Running the App**: To start the application, run the following command in your terminal, navigating to your project’s root directory.
 
 ```bash
