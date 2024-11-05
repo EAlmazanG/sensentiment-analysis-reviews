@@ -5,9 +5,22 @@ channels:
 dependencies:
   - python=3.9
   - pip
+  - pandas
+  - scikit-learn
+  - seaborn
+  - networkx
+  - gensim
+  - scipy
+  - tqdm
   - pip:
       - streamlit
       - plotly
-      - pandas
-      - scikit-learn
-      - seaborn
+      - openai
+      - transformers
+      - spacy
+      - torch
+      - selenium
+      - umap-learn
+      - wordcloud
+      - matplotlib
+      - pillow
