@@ -137,6 +137,11 @@ show_ml_lab_tab = st.sidebar.toggle(
     value=False, 
     help="Shows the ML processing details tab to adjust settings and see impact. Note: This may slow down dashboard performance."
 )
+enable_openai_api = st.sidebar.toggle(
+    "Enable OpenAI API features", 
+    value=False, 
+    help="Enables or disables features that use the OpenAI API. Requires valid API keys and may incur additional costs."
+)
 st.sidebar.header("Select CSV File")
 uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
 
@@ -404,58 +409,59 @@ if uploaded_file is not None:
         fig = plots.plotSentimentTrend(reviews_filtered, years_limit = 2, app = True)
         st.plotly_chart(fig, use_container_width=True)
 
-        ## Dynamic insights
-        st.markdown("<h4 style='text-align: left; color: #00000;'>📢 Customer insights for selected period</h4>", unsafe_allow_html=True)
-        st.write("Summarize key themes and feedback extracted from user reviews of the selected period. Highlighting strengths, pain points, and areas for improvement.")
+        if enable_openai_api:
+            ## Dynamic insights
+            st.markdown("<h4 style='text-align: left; color: #00000;'>📢 Customer insights for selected period</h4>", unsafe_allow_html=True)
+            st.write("Summarize key themes and feedback extracted from user reviews of the selected period. Highlighting strengths, pain points, and areas for improvement.")
 
-        _, col2 = st.columns([6, 2])
-        # Adjust the number of insights extracted
-        with col2:
-            filter_number_insights = st.number_input("Number of Insights per category", min_value= 2, max_value=5, value=2, key="filter_number_insights")
-            filter_number_insights = int(filter_number_insights) if filter_number_insights is not None else 2
-        
-        # Update topics with selected  revuews
-        reviews_summary_dict = tab_1.updateTopicsDict(reviews_filtered)
+            _, col2 = st.columns([6, 2])
+            # Adjust the number of insights extracted
+            with col2:
+                filter_number_insights = st.number_input("Number of Insights per category", min_value= 2, max_value=5, value=2, key="filter_number_insights")
+                filter_number_insights = int(filter_number_insights) if filter_number_insights is not None else 2
+            
+            # Update topics with selected  reviews
+            reviews_summary_dict = tab_1.updateTopicsDict(reviews_filtered)
 
-        # Extract Insights with LLM
-        client = llm_insights.initChatGPTClient()
+            # Extract Insights with LLM
+            client = llm_insights.initChatGPTClient()
 
-        # Generate insights
-        general_insights_prompt = (
-            "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms, in JSON format.\n"
-            f"I want you to extract:\n"
-            f"- {filter_number_insights} positive points\n"
-            f"- {filter_number_insights} negative points\n"
-            f"- {filter_number_insights} improvement suggestions based on the negative points\n"
-            "\n"
-            "Each point should be a logical, simple, and concise sentence that provides value. Do not name specific terms or topics, but focus on delivering direct value to business stakeholders without ambiguity. If you mention something that didn't go well, give examples based on the information.\n"
-            "Return the result in English in JSON format, ensuring it is easy to read in a notebook and standardized as follows:\n"
-            "\n"
-            "{best:['','',''], worst:['','',''], improve:['','','']}\n"
-            "\n"
-            "Ensure there are no contradictions between positive, negative, and improvement points.\n"
-            "The information:\n"
-        )
-        insigths_summary_updated = llm_insights.extractInsightsWithLLM(reviews_summary_dict, general_insights_prompt, client)
+            # Generate insights
+            general_insights_prompt = (
+                "I have this information extracted from LDA topics using clustering and sentiment analysis, including positive and negative terms, in JSON format.\n"
+                f"I want you to extract:\n"
+                f"- {filter_number_insights} positive points\n"
+                f"- {filter_number_insights} negative points\n"
+                f"- {filter_number_insights} improvement suggestions based on the negative points\n"
+                "\n"
+                "Each point should be a logical, simple, and concise sentence that provides value. Do not name specific terms or topics, but focus on delivering direct value to business stakeholders without ambiguity. If you mention something that didn't go well, give examples based on the information.\n"
+                "Return the result in English in JSON format, ensuring it is easy to read in a notebook and standardized as follows:\n"
+                "\n"
+                "{best:['','',''], worst:['','',''], improve:['','','']}\n"
+                "\n"
+                "Ensure there are no contradictions between positive, negative, and improvement points.\n"
+                "The information:\n"
+            )
+            insigths_summary_updated = llm_insights.extractInsightsWithLLM(reviews_summary_dict, general_insights_prompt, client)
 
-        # Write insights
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("<h5 style='text-align: center;'>💪 Strengths!</h5>", unsafe_allow_html=True)
-            for insight in insigths_summary_updated['best']:
-                st.success('👍 ' + insight)
+            # Write insights
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("<h5 style='text-align: center;'>💪 Strengths!</h5>", unsafe_allow_html=True)
+                for insight in insigths_summary_updated['best']:
+                    st.success('👍 ' + insight)
 
-        with col2:
-            st.markdown("<h5 style='text-align: center;'>🤬 Pain Points...</h5>", unsafe_allow_html=True)
-            for insight in insigths_summary_updated['worst']:
-                st.error('👎 ' + insight)
+            with col2:
+                st.markdown("<h5 style='text-align: center;'>🤬 Pain Points...</h5>", unsafe_allow_html=True)
+                for insight in insigths_summary_updated['worst']:
+                    st.error('👎 ' + insight)
 
-        _, col2, _ = st.columns([1, 3, 1])
+            _, col2, _ = st.columns([1, 3, 1])
 
-        with col2:
-            st.markdown("<h4 style='text-align: center;'>💡 Areas for Improvement</h4>", unsafe_allow_html=True)
-            for insight in insigths_summary_updated['improve']:
-                st.warning('⚠️ ' + insight)
+            with col2:
+                st.markdown("<h4 style='text-align: center;'>💡 Areas for Improvement</h4>", unsafe_allow_html=True)
+                for insight in insigths_summary_updated['improve']:
+                    st.warning('⚠️ ' + insight)
 
         # Extraction of best and worst reviews
         st.markdown("<h4 style='text-align: left; color: #00000;'>🤓 Reviews Overview</h4>", unsafe_allow_html=True)
