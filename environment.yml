@@ -12,6 +12,7 @@ dependencies:
   - gensim
   - scipy
   - tqdm
+  - nltk
   - pip:
       - streamlit
       - plotly
