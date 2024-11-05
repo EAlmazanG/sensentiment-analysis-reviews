@@ -2,6 +2,14 @@
 
 ![Preview of the dashboard](img/sar_main.gif)
 
+<br></br>
+<p align="center">
+    <a href="https://sentiment-analysis-reviews.streamlit.app/" target="_blank">
+        <img src="https://img.shields.io/badge/Try%20the%20Live%20Demo!-4CAF50?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo">
+    </a>
+</p>
+<br></br>
+
 ## Overview
 This project aims to provide a simple, cost-effective solution for small online stores and startups to analyze customer reviews. The main goal is to extract insights from customer feedback that will help these businesses improve their products and services. By using Python tools and machine learning, this project helps to classify customer sentiment (positive, neutral, negative) and presents these insights in an easy-to-read dashboard using Streamlit.
 
@@ -181,8 +189,17 @@ streamlit run app/app.py
 
 4. **Interactivity**: The tool offers various filters to customize the data view based on desired information. Additionally, users can dynamically extract insights from selected periods by connecting to the **GPT API** for advanced feedback analysis. In the **ML Lab** tab, several machine learning parameters can be adjusted, allowing users to experiment with the analysis settings and "play" with the results to gain deeper insights or identify patterns.
 
+<br></br>
+<p align="center">
+    <a href="https://sentiment-analysis-reviews.streamlit.app/" target="_blank">
+        <img src="https://img.shields.io/badge/Try%20the%20Live%20Demo!-4CAF50?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo">
+    </a>
+</p>
+<br></br>
+
 ![Tab1 of the dashboard](img/sar_tab1.gif)
 
 ![Tab2 of the dashboard](img/sar_tab2.gif)
 
 ![Tab3 of the dashboard](img/sar_tab3.gif)
+
