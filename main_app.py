@@ -37,7 +37,7 @@ def loadAdditionalData(reviews, raw_path, processed_path):
         # Convert embeddings from string to list of floats
         reviews['embedding'] = reviews['embedding'].apply(reFormatEmbeddings)
 
-    file_name = uploaded_file.name
+    file_name = uploaded_file
     place = extractPrefix(file_name)
     
     st.markdown(f"<h1 style='text-align: center; color: #000000;'>🍴 {place.upper()} 🍴</h1>", unsafe_allow_html=True)
@@ -121,8 +121,8 @@ def format_topic_terms(terms):
         return str(terms) 
             
 # Data Paths
-processed_path = '../data/processed/'
-raw_path = '../data/raw/'
+processed_path = './data/processed/'
+raw_path = './data/raw/'
 
 # Page config
 st.set_page_config(
@@ -140,15 +140,23 @@ show_ml_lab_tab = st.sidebar.toggle(
 enable_openai_api = st.sidebar.toggle(
     "Enable OpenAI API features", 
     value=False, 
-    help="Enables or disables features that use the OpenAI API. Requires valid API keys and may incur additional costs."
+    help="Enables or disables features that use the OpenAI API. Requires valid API keys and may incur additional costs.",
+    disabled=True
+)
+st.sidebar.markdown(
+    "🚫 **Note:** OpenAI API features are disabled in the live demo. To enable, clone the repo and add your API keys."
 )
 st.sidebar.header("Select CSV File")
-uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv")
+st.sidebar.markdown(
+    "⚠️ **Note:** Oceana Grill dataset will be loaded by default in the live demo. To use own data, clone the repo and follow the steps."
+)
+uploaded_file = st.sidebar.file_uploader("Choose a CSV file", type="csv", disabled=True)
+uploaded_file = "Oceana Grill_ml_processed_reviews.csv"
 
 if uploaded_file is not None:
     ## Load all necessary data
     # Load reviews data and extract place from the file name
-    reviews = loadData(uploaded_file)
+    reviews = loadData(processed_path + "Oceana Grill_ml_processed_reviews.csv")
     place, reviews, sample_reviews, resume, general_insights, worst_periods_insights = loadAdditionalData(reviews, raw_path, processed_path)
 
     # Label mapping for interest columns and label name
