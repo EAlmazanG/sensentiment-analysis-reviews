@@ -174,10 +174,6 @@ def analyzeTopicsLDA(df, number_of_topics = 5):
             passes=10,
             random_state=42
         )
-        '''
-        print(f"LDA Model training failed: {e}")
-        return None, []
-        '''
     except ValueError as e:
         print(f"LDA Model training failed: {e}")
         return None, []
