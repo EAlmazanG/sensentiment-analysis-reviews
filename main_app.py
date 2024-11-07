@@ -678,6 +678,7 @@ if uploaded_file is not None:
             unique_pca_clusters = set(reviews_filtered['pca_cluster'].dropna().unique())
             unique_umap_clusters = set(reviews_filtered['umap_cluster'].dropna().unique())
 
+            '''
             # Generate and display topics
             col1, col2 = st.columns(2)
             # PCA topics
@@ -704,6 +705,6 @@ if uploaded_file is not None:
                             st.write(f"**Topic {i}:** {topic}")
                     else:
                         st.write("Insufficient number of group reviews to be able to calculate the topics, no topics generated for this group.")
-
+            '''
 else:
     st.write("Please upload a ML processed CSV file to start.")
