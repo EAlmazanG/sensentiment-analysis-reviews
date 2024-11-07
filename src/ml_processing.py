@@ -17,10 +17,10 @@ import torch
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
-'''
+
 from gensim import corpora
 from gensim.models import LdaModel
-'''
+
 from sklearn.decomposition import PCA
 import umap.umap_ as umap
 
@@ -167,15 +167,17 @@ def analyzeTopicsLDA(df, number_of_topics = 5):
     
     # Train LDA model
     try:
-        '''lda_model = LdaModel(
+        lda_model = LdaModel(
             corpus,
             num_topics=number_of_topics,
             id2word=dictionary,
             passes=10,
             random_state=42
-        )'''
+        )
+        '''
         print(f"LDA Model training failed: {e}")
         return None, []
+        '''
     except ValueError as e:
         print(f"LDA Model training failed: {e}")
         return None, []
