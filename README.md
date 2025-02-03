@@ -23,7 +23,7 @@ Small commerce businesses often lack the resources to conduct in-depth analysis 
 - **scikit-learn**: Implements a simple machine learning model for sentiment analysis.
 - **streamlit**: Displays the results in an accessible and interactive dashboard.
 
-![Preview of the dashboard](img/embeddings_flow.png)
+![Preview of the dashboard](img/complete_flow.png)
 
 ## Project Phases
 1. **Data Collection (raw and with Scraping)**: Reviews will be collected from online stores using Python's Scrapy framework and stored in CSV format.
@@ -122,7 +122,7 @@ This completes the basic steps to scrape raw review data from Google Maps using 
 ### Data Cleaning
 Select the raw file using data_cleaning notebook and generate the processed file. Check the search_keyworkds variable to add the common expressions required to extract the desire info.
 
-![Preview of the flow](img/complete_flow.png)
+![Preview of the flow](img/embeddings_flow.png)
 
 ### Data Analysis
 Once we have the cleaned data, we will extract the necessary information using ML, which we will use as input for the Streamlit.
