@@ -171,6 +171,8 @@ The API is used in the **Customer Insights** and **ML Lab** tabs to:
 - **Data Privacy:** Be mindful that enabling the GPT API may send review text to OpenAI’s servers. Consider reviewing OpenAI’s data usage policy to understand how your data is handled.
 - **API Costs:** Since the GPT API is a paid service, usage may incur costs. Track your usage on the OpenAI dashboard to manage API expenses.
 
+![Tab1 of the dashboard](img/sar_tab1.gif)
+
 ### Data Visualization
 
 To display the extracted insights, I have developed an **interactive Streamlit application** that generates an insightful dashboard. This app allows you to load the processed data and visualize it through user-friendly metrics and graphs. Below is the setup for running the Streamlit application.
@@ -200,8 +202,6 @@ streamlit run app/app.py
     </a>
 </p>
 <br></br>
-
-![Tab1 of the dashboard](img/sar_tab1.gif)
 
 ![Tab2 of the dashboard](img/sar_tab2.gif)
 
