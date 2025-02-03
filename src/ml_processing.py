@@ -20,7 +20,6 @@ from tqdm import tqdm
 
 from gensim import corpora
 from gensim.models import LdaModel
-
 from sklearn.decomposition import PCA
 import umap.umap_ as umap
 
