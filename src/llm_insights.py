@@ -9,17 +9,13 @@ import numpy as np
 import re
 
 from openai import OpenAI
-#import openai_setup
+import openai_setup
 
 # Create GPT Client
 def initChatGPTClient():
-    #organization = openai_setup.conf['organization']
-    #project = openai_setup.conf['project']
-    #key = openai_setup.conf['key']
-
-    organization = ''
-    project = ''
-    key = ''
+    organization = openai_setup.conf['organization']
+    project = openai_setup.conf['project']
+    key = openai_setup.conf['key']
 
     client = OpenAI(
         api_key=key,

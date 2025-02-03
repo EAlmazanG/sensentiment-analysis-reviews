@@ -17,11 +17,11 @@ importlib.reload(ml_processing)
 from src import llm_insights
 importlib.reload(llm_insights)
 
-from app import tab_1
+import tab_1
 importlib.reload(tab_1)
-from app import tab_3
+import tab_3
 importlib.reload(tab_3)
-from app import header
+import header
 importlib.reload(header)
 
 # Function to load data from uploaded file
